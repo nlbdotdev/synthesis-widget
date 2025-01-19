@@ -1,5 +1,5 @@
 import { InteractionMode } from './Widget'
-
+import { Cube } from './Cube'
 interface BlocksProps {
   count: number
 }
@@ -22,32 +22,18 @@ interface CountInputProps {
   setCount: (count: number) => void
 }
 
-// Cube Component
-const Cube = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-    width="50"
-    height="50"
-  >
-    <rect
-      x="10"
-      y="10"
-      width="80"
-      height="80"
-      fill="#3b82f6"
-      stroke="#1e3a8a"
-      strokeWidth="3"
-    />
-  </svg>
-)
-
 // Stack Component
 const Blocks = ({ count }: BlocksProps) => {
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex flex-col items-center">
       {Array.from({ length: count }).map((_, index) => (
-        <Cube key={index} />
+        <div
+          key={index}
+          className="-mt-2 first:mt-0"
+          style={{ zIndex: count - index }} // Higher cubes get higher z-index
+        >
+          <Cube />
+        </div>
       ))}
     </div>
   )
@@ -145,7 +131,7 @@ const Stack = ({
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
-          <div className="mb-4">{count}</div>
+          <div className="mb-4 select-none">{count}</div>
         )}
       </div>
     </div>
