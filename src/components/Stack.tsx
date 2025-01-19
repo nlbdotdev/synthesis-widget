@@ -1,3 +1,5 @@
+import { InteractionMode } from './Widget'
+
 interface BlocksProps {
   count: number
 }
@@ -6,6 +8,7 @@ interface StackProps {
   count: number
   setCount: (count: number) => void
   isInput?: boolean
+  interactionMode: InteractionMode
 }
 
 interface CountInputProps {
@@ -73,7 +76,12 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
 }
 
 // Parent Component
-const Stack = ({ count, setCount, isInput = false }: StackProps) => {
+const Stack = ({
+  count,
+  setCount,
+  isInput = false,
+  interactionMode,
+}: StackProps) => {
   return (
     <div className="flex flex-col justify-center items-center bg-gray-100 min-h-[50vh] min-w-[200px]">
       <div className="flex-grow flex items-center">
