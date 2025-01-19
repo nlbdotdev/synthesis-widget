@@ -24,12 +24,12 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
   const [startPoint, setStartPoint] = React.useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = React.useState(false)
 
-  const handleDragStart = (event: any, info: any) => {
+  const handleDragStart = (_event: any, info: any) => {
     setStartPoint({ x: info.point.x, y: info.point.y })
     setIsDragging(true)
   }
 
-  const handleDrag = (event: any, info: any) => {
+  const handleDrag = (_event: any, info: any) => {
     const deltaX = info.point.x - startPoint.x
     const deltaY = info.point.y - startPoint.y
     const isOutsideBounds =
@@ -37,7 +37,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
     setIsOutside(isOutsideBounds)
   }
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     const deltaX = info.point.x - startPoint.x
     const deltaY = info.point.y - startPoint.y
     // Check if block was dragged far enough to the sides or up/down
