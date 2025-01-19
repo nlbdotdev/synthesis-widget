@@ -91,21 +91,35 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
     <div className="flex items-center space-x-2 mb-4 select-none">
       <button
         onClick={() => setCount(Math.max(0, count - 1))}
-        className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none select-none"
+        disabled={count === 0}
+        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+          count === 0
+            ? 'bg-red-300 cursor-not-allowed'
+            : 'bg-red-500 hover:bg-red-600'
+        }`}
       >
         -
       </button>
       <input
         type="number"
         value={count}
-        onChange={(e) =>
-          setCount(Math.min(10, Math.max(0, parseInt(e.target.value) || 0)))
-        }
+        onFocus={(e) => e.target.select()}
+        onChange={(e) => {
+          const value = e.target.value === '' ? 0 : parseInt(e.target.value)
+          if (!isNaN(value)) {
+            setCount(Math.min(10, Math.max(0, value)))
+          }
+        }}
         className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none"
       />
       <button
         onClick={() => setCount(Math.min(10, count + 1))}
-        className="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none select-none"
+        disabled={count === 10}
+        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+          count === 10
+            ? 'bg-green-300 cursor-not-allowed'
+            : 'bg-green-500 hover:bg-green-600'
+        }`}
       >
         +
       </button>
