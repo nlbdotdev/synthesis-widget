@@ -64,9 +64,11 @@ const BlocksContainer = ({
 
   return (
     <div
-      className={`flex-grow flex items-center justify-center w-full ${
-        interactionMode === 'addRemove' ? 'cursor-pointer' : ''
-      }`}
+      className={`flex-grow flex items-center justify-center w-full`}
+
+      //   className={`flex-grow flex items-center justify-center w-full ${
+      //     interactionMode === 'addRemove' ? 'cursor-pointer' : ''
+      //   }`}
       //   onClick={handleClick}
       //   onContextMenu={handleContextMenu}
     >
