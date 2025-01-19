@@ -1,9 +1,14 @@
 interface CubeProps {
   height?: number
   width?: number
+  isOutside?: boolean
 }
 
-export const Cube = ({ height = 75, width = 75 }: CubeProps) => (
+export const Cube = ({
+  height = 75,
+  width = 75,
+  isOutside = false,
+}: CubeProps) => (
   <svg
     height={height}
     width={width}
@@ -21,9 +26,18 @@ export const Cube = ({ height = 75, width = 75 }: CubeProps) => (
     ></g>
     <g id="SVGRepo_iconCarrier">
       <g>
-        <polygon fill="#b7f4f0" points="29,58 3,45 3,13 29,26" />
-        <polygon fill="#117bbc" points="29,58 55,45 55,13 29,26" />
-        <polygon fill="#5ed2e5" points="3,13 28,0 55,13 29,26" />
+        <polygon
+          fill={isOutside ? '#ffb7b7' : '#b7f4f0'}
+          points="29,58 3,45 3,13 29,26"
+        />
+        <polygon
+          fill={isOutside ? '#bc1111' : '#117bbc'}
+          points="29,58 55,45 55,13 29,26"
+        />
+        <polygon
+          fill={isOutside ? '#e55e5e' : '#5ed2e5'}
+          points="3,13 28,0 55,13 29,26"
+        />
       </g>
     </g>
   </svg>
