@@ -67,6 +67,11 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
           style: {
             cursor: 'grab',
           },
+          onClick: (e: React.MouseEvent) => {
+            if (interactionMode === 'addRemove') {
+              e.stopPropagation()
+            }
+          },
         }
       : {}
 
