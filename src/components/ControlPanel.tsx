@@ -1,27 +1,16 @@
-import { InteractionMode } from './Widget'
+import { Dispatch, SetStateAction } from 'react'
+import { WidgetState } from './Widget'
 import { PlayButton } from './PlayButton'
 
 interface ControlPanelProps {
-  interactionMode: InteractionMode
-  setInteractionMode: (mode: InteractionMode) => void
-  isInput: boolean
-  setIsInput: (isInput: boolean) => void
-  showComparator: boolean
-  setShowComparator: (show: boolean) => void
-  showComparatorLines: boolean
-  setShowComparatorLines: (show: boolean) => void
+  state: WidgetState
+  setState: Dispatch<SetStateAction<WidgetState>>
   playComparatorAnimation: () => void
 }
 
 const ControlPanel = ({
-  interactionMode,
-  setInteractionMode,
-  isInput,
-  setIsInput,
-  showComparator,
-  setShowComparator,
-  showComparatorLines,
-  setShowComparatorLines,
+  state,
+  setState,
   playComparatorAnimation,
 }: ControlPanelProps) => {
   return (
@@ -30,9 +19,13 @@ const ControlPanel = ({
         <label className="flex items-center space-x-2">
           <span>Interaction Mode: </span>
           <select
-            value={interactionMode}
+            value={state.interactionMode}
             onChange={(e) =>
-              setInteractionMode(e.target.value as InteractionMode)
+              setState({
+                ...state,
+                interactionMode: e.target
+                  .value as WidgetState['interactionMode'],
+              })
             }
             className="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -45,8 +38,8 @@ const ControlPanel = ({
           <span>Input Mode: </span>
           <input
             type="checkbox"
-            checked={isInput}
-            onChange={(e) => setIsInput(e.target.checked)}
+            checked={state.isInput}
+            onChange={(e) => setState({ ...state, isInput: e.target.checked })}
             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
           />
         </label>
@@ -54,8 +47,10 @@ const ControlPanel = ({
           <span>Show Comparator:</span>
           <input
             type="checkbox"
-            checked={showComparator}
-            onChange={(e) => setShowComparator(e.target.checked)}
+            checked={state.showComparator}
+            onChange={(e) =>
+              setState({ ...state, showComparator: e.target.checked })
+            }
             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
           />
         </label>
@@ -63,8 +58,10 @@ const ControlPanel = ({
           <span>Show Comparator Lines:</span>
           <input
             type="checkbox"
-            checked={showComparatorLines}
-            onChange={(e) => setShowComparatorLines(e.target.checked)}
+            checked={state.showComparatorLines}
+            onChange={(e) =>
+              setState({ ...state, showComparatorLines: e.target.checked })
+            }
             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
           />
         </label>

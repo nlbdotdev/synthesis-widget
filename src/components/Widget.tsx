@@ -4,15 +4,24 @@ import ControlPanel from './ControlPanel'
 
 export type InteractionMode = 'none' | 'addRemove' | 'drawCompare'
 
-const Widget = () => {
-  const [blockCount1, setBlockCount1] = useState(4)
-  const [blockCount2, setBlockCount2] = useState(2)
+export interface WidgetState {
+  blockCount1: number
+  blockCount2: number
+  interactionMode: InteractionMode
+  isInput: boolean
+  showComparator: boolean
+  showComparatorLines: boolean
+}
 
-  const [interactionMode, setInteractionMode] =
-    useState<InteractionMode>('none')
-  const [isInput, setIsInput] = useState(false)
-  const [showComparator, setShowComparator] = useState(false)
-  const [showComparatorLines, setShowComparatorLines] = useState(false)
+const Widget = () => {
+  const [state, setState] = useState<WidgetState>({
+    blockCount1: 4,
+    blockCount2: 2,
+    interactionMode: 'none',
+    isInput: false,
+    showComparator: false,
+    showComparatorLines: false,
+  })
 
   const playComparatorAnimation = () => {
     console.log('Playing comparator animation...')
@@ -22,27 +31,21 @@ const Widget = () => {
     <div className="flex flex-col items-center space-y-8">
       <div className="flex flex-row items-center space-x-8">
         <Stack
-          count={blockCount1}
-          setCount={setBlockCount1}
-          isInput={isInput}
-          interactionMode={interactionMode}
+          count={state.blockCount1}
+          setCount={(count) => setState({ ...state, blockCount1: count })}
+          isInput={state.isInput}
+          interactionMode={state.interactionMode}
         />
         <Stack
-          count={blockCount2}
-          setCount={setBlockCount2}
-          isInput={isInput}
-          interactionMode={interactionMode}
+          count={state.blockCount2}
+          setCount={(count) => setState({ ...state, blockCount2: count })}
+          isInput={state.isInput}
+          interactionMode={state.interactionMode}
         />
       </div>
       <ControlPanel
-        interactionMode={interactionMode}
-        setInteractionMode={setInteractionMode}
-        isInput={isInput}
-        setIsInput={setIsInput}
-        showComparator={showComparator}
-        setShowComparator={setShowComparator}
-        showComparatorLines={showComparatorLines}
-        setShowComparatorLines={setShowComparatorLines}
+        state={state}
+        setState={setState}
         playComparatorAnimation={playComparatorAnimation}
       />
     </div>
