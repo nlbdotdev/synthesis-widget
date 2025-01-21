@@ -131,14 +131,14 @@ const Stack = ({
   return (
     <div
       data-stack={isInput ? '1' : '2'}
-      className="flex flex-col justify-center items-center bg-gray-100 min-h-[70vh] min-w-[200px]"
+      className="flex flex-col justify-between h-[85vh] bg-gray-100 min-w-[200px] rounded-xl"
     >
       <BlocksContainer
         count={count}
         setCount={setCount}
         interactionMode={interactionMode}
       />
-      <div className="flex items-center justify-center h-[10vh] bg-green-100 w-full">
+      <div className="flex items-center justify-center h-[10vh] bg-green-100 w-full rounded-b-xl">
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
