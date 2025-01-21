@@ -23,7 +23,6 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
   const [isOutside, setIsOutside] = React.useState(false)
   const [startPoint, setStartPoint] = React.useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = React.useState(false)
-  const [isHovered, setIsHovered] = React.useState(false)
 
   const handleDragStart = (_event: any, info: any) => {
     setStartPoint({ x: info.point.x, y: info.point.y })
@@ -87,8 +86,6 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
       <motion.div
         initial={{ scale: SCALE_INITIAL }}
         animate={{ scale: SCALE_NORMAL }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
         {...interactionProps}
       >
         <Cube isOutside={isOutside} />
