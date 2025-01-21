@@ -68,7 +68,7 @@ const Widget = () => {
       y: comparatorRect.top + comparatorRect.height / 2,
     }
 
-    const lines: Line[] = []
+    const lines: { start: Point; end: Point }[] = []
     const minCount = Math.min(state.blockCount1, state.blockCount2)
 
     // Create lines for matching pairs
