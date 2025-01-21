@@ -84,6 +84,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
       }}
     >
       <motion.div
+        data-block
         initial={{ scale: SCALE_INITIAL }}
         animate={{ scale: SCALE_NORMAL }}
         {...interactionProps}

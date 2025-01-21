@@ -129,7 +129,10 @@ const Stack = ({
   interactionMode,
 }: StackProps) => {
   return (
-    <div className="flex flex-col justify-center items-center bg-gray-100 min-h-[70vh] min-w-[200px]">
+    <div
+      data-stack={isInput ? '1' : '2'}
+      className="flex flex-col justify-center items-center bg-gray-100 min-h-[70vh] min-w-[200px]"
+    >
       <BlocksContainer
         count={count}
         setCount={setCount}
