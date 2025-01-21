@@ -23,6 +23,7 @@ export interface WidgetState {
   comparatorLines: Line[]
   isDrawing: boolean
   currentLine: Line | null
+  autoSnapLines: boolean
 }
 
 interface ComparatorProps {
@@ -92,6 +93,37 @@ const isValidEndPoint = (
   return isInXBounds && isInYBounds
 }
 
+const VERTICAL_PADDING = 20 // Adjust this value to increase/decrease padding (in pixels)
+
+const getStackTopBottomPositions = (
+  stackElement: HTMLDivElement | null
+): { top: Point; bottom: Point; centerX: number } | null => {
+  if (!stackElement) return null
+
+  const stackRect = stackElement.getBoundingClientRect()
+  const stackCenterX =
+    ((stackRect.left + stackRect.width / 2) / window.innerWidth) * 100
+
+  // Find the first and last block elements
+  const blocks = stackElement.querySelectorAll('[data-block]')
+  if (!blocks.length) return null
+
+  const firstBlock = blocks[0].getBoundingClientRect()
+  const lastBlock = blocks[blocks.length - 1].getBoundingClientRect()
+
+  return {
+    top: {
+      x: stackCenterX,
+      y: ((firstBlock.top - VERTICAL_PADDING) / window.innerHeight) * 100,
+    },
+    bottom: {
+      x: stackCenterX,
+      y: ((lastBlock.bottom + VERTICAL_PADDING) / window.innerHeight) * 100,
+    },
+    centerX: stackCenterX,
+  }
+}
+
 const Widget = () => {
   const leftStackRef = useRef<HTMLDivElement>(null)
   const rightStackRef = useRef<HTMLDivElement>(null)
@@ -107,6 +139,7 @@ const Widget = () => {
     comparatorLines: [],
     isDrawing: false,
     currentLine: null,
+    autoSnapLines: true,
   })
 
   // Add a ref to track if we should ignore the next mouse up
@@ -142,22 +175,21 @@ const Widget = () => {
         (line) => line.type === lineType
       )
       if (!hasLineOfType) {
+        const startPoint = {
+          x: (absolutePoint.x / window.innerWidth) * 100,
+          y: (absolutePoint.y / window.innerHeight) * 100,
+        }
+
         setState({
           ...state,
           isDrawing: true,
           currentLine: {
-            start: {
-              x: (absolutePoint.x / window.innerWidth) * 100,
-              y: (absolutePoint.y / window.innerHeight) * 100,
-            },
-            end: {
-              x: (absolutePoint.x / window.innerWidth) * 100,
-              y: (absolutePoint.y / window.innerHeight) * 100,
-            },
+            start: startPoint,
+            end: startPoint,
             type: lineType,
           },
         })
-        // Only set ignore flag for mouse events
+
         if (!isTouchEvent) {
           ignoreNextMouseUp.current = true
         }
@@ -211,6 +243,41 @@ const Widget = () => {
     }
 
     if (isValidEndPoint(absolutePoint, rightBounds, state.currentLine.type)) {
+      // Get the snap positions for both stacks
+      const leftSnapPositions = getStackTopBottomPositions(leftStackRef.current)
+      const rightSnapPositions = getStackTopBottomPositions(
+        rightStackRef.current
+      )
+
+      let startPoint = state.currentLine.start
+      let endPoint = {
+        x: (absolutePoint.x / window.innerWidth) * 100,
+        y: (absolutePoint.y / window.innerHeight) * 100,
+      }
+
+      if (state.autoSnapLines) {
+        // Snap to center X and appropriate Y positions
+        startPoint = leftSnapPositions
+          ? {
+              x: leftSnapPositions.centerX,
+              y:
+                state.currentLine.type === 'top'
+                  ? leftSnapPositions.top.y
+                  : leftSnapPositions.bottom.y,
+            }
+          : startPoint
+
+        endPoint = rightSnapPositions
+          ? {
+              x: rightSnapPositions.centerX,
+              y:
+                state.currentLine.type === 'top'
+                  ? rightSnapPositions.top.y
+                  : rightSnapPositions.bottom.y,
+            }
+          : endPoint
+      }
+
       setState({
         ...state,
         isDrawing: false,
@@ -220,10 +287,8 @@ const Widget = () => {
           ),
           {
             ...state.currentLine,
-            end: {
-              x: (absolutePoint.x / window.innerWidth) * 100,
-              y: (absolutePoint.y / window.innerHeight) * 100,
-            },
+            start: startPoint,
+            end: endPoint,
           },
         ],
         currentLine: null,
