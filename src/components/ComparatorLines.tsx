@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { InteractionMode } from './Widget'
 
 interface Point {
@@ -20,7 +20,7 @@ interface ComparatorLinesProps {
   isDrawing: boolean
   showComparatorLines: boolean
   interactionMode: InteractionMode
-  onLineDrawStart: (point: Point) => void
+  onLineDrawStart: (point: Point, isTouchEvent: boolean) => void
   onLineDrawEnd: (point: Point) => void
   onLineDrawMove: (point: Point) => void
   rightStackRef: HTMLDivElement | null
@@ -39,15 +39,36 @@ const ComparatorLines = ({
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
-  const getRelativeCoordinates = (e: React.MouseEvent): Point | null => {
-    if (!svgRef.current) return null
+  useEffect(() => {
+    // Add non-passive touch-move listener to prevent scrolling
+    const element = svgRef.current
+    if (!element) return
 
-    const svg = svgRef.current
-    const rect = svg.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
+    const handleTouchMove = (e: TouchEvent) => {
+      if (currentLine) {
+        e.preventDefault()
+      }
+    }
 
-    return { x, y }
+    element.addEventListener('touchmove', handleTouchMove, { passive: false })
+    return () => {
+      element.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [currentLine])
+
+  const getPointFromEvent = (
+    e: React.MouseEvent | React.TouchEvent,
+    rect: DOMRect
+  ) => {
+    const clientX = 'touches' in e ? e.touches[0]?.clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0]?.clientY : e.clientY
+
+    if (clientX === undefined || clientY === undefined) return null
+
+    return {
+      x: ((clientX - rect.left) / rect.width) * 100,
+      y: ((clientY - rect.top) / rect.height) * 100,
+    }
   }
 
   // Helper to determine if endpoint is valid
@@ -75,17 +96,6 @@ const ComparatorLines = ({
     return isInXBounds && isInYBounds
   }
 
-  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!currentLine) return
-
-    const svg = e.currentTarget
-    const rect = svg.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-
-    onLineDrawMove({ x, y })
-  }
-
   return (
     <motion.svg
       ref={svgRef}
@@ -96,23 +106,35 @@ const ComparatorLines = ({
       }`}
       onMouseDown={(e) => {
         const rect = e.currentTarget.getBoundingClientRect()
-        const x = ((e.clientX - rect.left) / rect.width) * 100
-        const y = ((e.clientY - rect.top) / rect.height) * 100
-        onLineDrawStart({ x, y })
+        const point = getPointFromEvent(e, rect)
+        if (point) onLineDrawStart(point, false)
+      }}
+      onTouchStart={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const point = getPointFromEvent(e, rect)
+        if (point) onLineDrawStart(point, true)
       }}
       onClick={(e) => {
         if (!currentLine) return
         const rect = e.currentTarget.getBoundingClientRect()
-        const x = ((e.clientX - rect.left) / rect.width) * 100
-        const y = ((e.clientY - rect.top) / rect.height) * 100
-        onLineDrawEnd({ x, y })
+        const point = getPointFromEvent(e, rect)
+        if (point) onLineDrawEnd(point)
+      }}
+      onTouchEnd={(e) => {
+        if (!currentLine) return
+        if (currentLine.end) onLineDrawEnd(currentLine.end)
       }}
       onMouseMove={(e) => {
         if (!currentLine) return
         const rect = e.currentTarget.getBoundingClientRect()
-        const x = ((e.clientX - rect.left) / rect.width) * 100
-        const y = ((e.clientY - rect.top) / rect.height) * 100
-        onLineDrawMove({ x, y })
+        const point = getPointFromEvent(e, rect)
+        if (point) onLineDrawMove(point)
+      }}
+      onTouchMove={(e) => {
+        if (!currentLine) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const point = getPointFromEvent(e, rect)
+        if (point) onLineDrawMove(point)
       }}
       style={{ touchAction: 'none' }} // Prevents touch scrolling while drawing
       initial={false}

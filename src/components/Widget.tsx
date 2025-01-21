@@ -118,7 +118,7 @@ const Widget = () => {
     //    TODO
   }
 
-  const handleLineDrawStart = (point: Point) => {
+  const handleLineDrawStart = (point: Point, isTouchEvent: boolean) => {
     if (state.interactionMode !== 'drawCompare') return
 
     const leftBounds = getStackBounds(leftStackRef.current)
@@ -130,11 +130,8 @@ const Widget = () => {
       y: (point.y * window.innerHeight) / 100,
     }
 
-    // Check if we're already drawing
-    if (state.isDrawing) {
-      handleLineDrawEnd(point)
-      return
-    }
+    // For touch events, we don't want to handle multiple starts
+    if (isTouchEvent && state.isDrawing) return
 
     // Check if point is in left stack
     const isTopHalf = absolutePoint.y < leftBounds.centerY
@@ -160,7 +157,10 @@ const Widget = () => {
             type: lineType,
           },
         })
-        ignoreNextMouseUp.current = true
+        // Only set ignore flag for mouse events
+        if (!isTouchEvent) {
+          ignoreNextMouseUp.current = true
+        }
       }
     }
   }
@@ -258,7 +258,7 @@ const Widget = () => {
           onLineDrawStart={handleLineDrawStart}
           onLineDrawEnd={handleLineDrawEnd}
           onLineDrawMove={handleLineDrawMove}
-          rightStackRef={null}
+          rightStackRef={rightStackRef.current}
         />
       </div>
       <ControlPanel
