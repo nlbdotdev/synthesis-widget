@@ -17,7 +17,6 @@ export interface WidgetState {
   blockCount2: number
   interactionMode: InteractionMode
   isInput: boolean
-  showComparator: boolean
   showComparatorLines: boolean
   drawnLines: Line[]
   comparatorLines: Line[]
@@ -28,23 +27,6 @@ export interface WidgetState {
   animationOperator: string
   animationLines: { originalStart: Point; originalEnd: Point }[]
   hasCompletedAnimation: boolean
-}
-
-interface ComparatorProps {
-  value1: number
-  value2: number
-  show: boolean
-}
-
-const Comparator = ({ value1, value2, show }: ComparatorProps) => {
-  return (
-    <div
-      data-comparator
-      className="text-6xl font-bold px-12 mx-16 py-6 bg-gray-100 rounded-xl shadow-md transition-shadow select-none"
-    >
-      {show ? (value1 > value2 ? '>' : value1 < value2 ? '<' : '=') : '?'}
-    </div>
-  )
 }
 
 interface StackBounds {
@@ -172,7 +154,6 @@ const Widget = () => {
     blockCount2: 2,
     interactionMode: 'none',
     isInput: false,
-    showComparator: false,
     showComparatorLines: false,
     drawnLines: [],
     comparatorLines: [],
@@ -419,12 +400,6 @@ const Widget = () => {
             interactionMode={state.interactionMode}
           />
         </div>
-
-        <Comparator
-          value1={state.blockCount1}
-          value2={state.blockCount2}
-          show={state.showComparator}
-        />
 
         <div ref={rightStackRef}>
           <Stack

@@ -80,17 +80,6 @@ const ControlPanel = ({
         </div>
 
         <label className="flex items-center space-x-2">
-          <span>Show Comparator:</span>
-          <input
-            type="checkbox"
-            checked={state.showComparator}
-            onChange={(e) =>
-              setState({ ...state, showComparator: e.target.checked })
-            }
-            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-          />
-        </label>
-        <label className="flex items-center space-x-2">
           <span>Show Comparator Lines:</span>
           <input
             type="checkbox"
