@@ -9,6 +9,7 @@ interface Point {
 interface Line {
   start: Point
   end: Point
+  type: 'top' | 'bottom'
 }
 
 interface ComparatorLinesProps {
@@ -79,7 +80,7 @@ const ComparatorLines = ({
           y1={line.start.y}
           x2={line.end.x}
           y2={line.end.y}
-          stroke="#2563eb"
+          stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
           strokeWidth="2"
         />
       ))}
@@ -91,7 +92,7 @@ const ComparatorLines = ({
           y1={currentLine.start.y}
           x2={currentLine.end.x}
           y2={currentLine.end.y}
-          stroke="#2563eb"
+          stroke={currentLine.type === 'top' ? '#2563eb' : '#1d4ed8'}
           strokeWidth="2"
           strokeDasharray="5,5"
         />
@@ -106,7 +107,7 @@ const ComparatorLines = ({
             y1={line.start.y}
             x2={line.end.x}
             y2={line.end.y}
-            stroke="#16a34a"
+            stroke={line.type === 'top' ? '#16a34a' : '#15803d'}
             strokeWidth="2"
             strokeDasharray="5,5"
           />

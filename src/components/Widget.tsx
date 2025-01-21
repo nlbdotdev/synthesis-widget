@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Stack from './Stack'
 import ControlPanel from './ControlPanel'
 import ComparatorLines from './ComparatorLines'
 import { Point } from 'motion/react'
 
 export type InteractionMode = 'none' | 'addRemove' | 'drawCompare'
+
+interface Line {
+  start: Point
+  end: Point
+  type: 'top' | 'bottom'
+}
 
 export interface WidgetState {
   blockCount1: number
@@ -13,10 +19,10 @@ export interface WidgetState {
   isInput: boolean
   showComparator: boolean
   showComparatorLines: boolean
-  drawnLines: { start: Point; end: Point }[]
+  drawnLines: Line[]
   comparatorLines: { start: Point; end: Point }[]
   isDrawing: boolean
-  currentLine: { start: Point; end: Point } | null
+  currentLine: Line | null
 }
 
 interface ComparatorProps {
@@ -37,6 +43,9 @@ const Comparator = ({ value1, value2, show }: ComparatorProps) => {
 }
 
 const Widget = () => {
+  const leftStackRef = useRef<HTMLDivElement>(null)
+  const rightStackRef = useRef<HTMLDivElement>(null)
+
   const [state, setState] = useState<WidgetState>({
     blockCount1: 4,
     blockCount2: 2,
@@ -134,12 +143,73 @@ const Widget = () => {
   }
 
   const handleLineDrawStart = (point: Point) => {
-    if (state.interactionMode !== 'drawCompare') return
-    setState({
-      ...state,
-      isDrawing: true,
-      currentLine: { start: point, end: point },
+    console.log('Draw Start:', {
+      interactionMode: state.interactionMode,
+      point,
     })
+
+    if (state.interactionMode !== 'drawCompare') {
+      console.log('Not in draw mode')
+      return
+    }
+
+    // Get stack elements
+    const leftStack = document.querySelector('[data-stack="1"]')
+    if (!leftStack) {
+      console.log('Left stack not found')
+      return
+    }
+
+    const stackRect = leftStack.getBoundingClientRect()
+    const stackMidpoint = stackRect.top + stackRect.height / 2
+
+    console.log('Stack bounds:', {
+      left: stackRect.left,
+      right: stackRect.right,
+      top: stackRect.top,
+      bottom: stackRect.bottom,
+      midpoint: stackMidpoint,
+    })
+
+    // Determine if we're in top or bottom half of left stack
+    const isTopHalf = point.y < stackMidpoint
+
+    console.log('Position check:', {
+      isWithinX: point.x >= stackRect.left && point.x <= stackRect.right,
+      isWithinY: point.y >= stackRect.top && point.y <= stackRect.bottom,
+      isTopHalf,
+    })
+
+    // Only allow drawing if starting from left stack
+    if (
+      point.x >= stackRect.left &&
+      point.x <= stackRect.right &&
+      point.y >= stackRect.top &&
+      point.y <= stackRect.bottom
+    ) {
+      const lineType = isTopHalf ? 'top' : 'bottom'
+
+      // Check if we already have a line of this type
+      const hasLineOfType = state.drawnLines.some(
+        (line) => line.type === lineType
+      )
+      console.log('Line check:', {
+        lineType,
+        hasLineOfType,
+        existingLines: state.drawnLines,
+      })
+
+      if (!hasLineOfType) {
+        setState({
+          ...state,
+          isDrawing: true,
+          currentLine: { start: point, end: point, type: lineType },
+        })
+        console.log('Starting new line:', lineType)
+      }
+    } else {
+      console.log('Click outside valid start area')
+    }
   }
 
   const handleLineDrawMove = (point: Point) => {
@@ -152,34 +222,75 @@ const Widget = () => {
 
   const handleLineDrawEnd = (point: Point) => {
     if (!state.isDrawing || !state.currentLine) return
-    setState({
-      ...state,
-      isDrawing: false,
-      drawnLines: [...state.drawnLines, { ...state.currentLine, end: point }],
-      currentLine: null,
-    })
+
+    // Get right stack element
+    const rightStack = rightStackRef.current
+    if (!rightStack) return
+
+    const stackRect = rightStack.getBoundingClientRect()
+    const stackMidpoint = stackRect.top + stackRect.height / 2
+
+    // Check if endpoint is in the correct half of right stack
+    const isInCorrectHalf =
+      state.currentLine.type === 'top'
+        ? point.y < stackMidpoint
+        : point.y >= stackMidpoint
+
+    // Only keep the line if it ends in the correct position
+    if (
+      point.x >= stackRect.left &&
+      point.x <= stackRect.right &&
+      point.y >= stackRect.top &&
+      point.y <= stackRect.bottom &&
+      isInCorrectHalf
+    ) {
+      setState({
+        ...state,
+        isDrawing: false,
+        drawnLines: [
+          ...state.drawnLines.filter(
+            (line) => line.type !== state.currentLine!.type
+          ),
+          { ...state.currentLine, end: point },
+        ],
+      })
+    } else {
+      // Invalid end position - discard the line
+      setState({
+        ...state,
+        isDrawing: false,
+        currentLine: null,
+      })
+    }
   }
 
   return (
     <div className="flex flex-col items-center space-y-8">
-      <div className="flex flex-row items-center justify-between w-full px-32 relative">
-        <Stack
-          count={state.blockCount1}
-          setCount={(count) => setState({ ...state, blockCount1: count })}
-          isInput={state.isInput}
-          interactionMode={state.interactionMode}
-        />
+      <div className="flex flex-row items-center justify-between w-full px-32">
+        <div ref={leftStackRef}>
+          <Stack
+            count={state.blockCount1}
+            setCount={(count) => setState({ ...state, blockCount1: count })}
+            isInput={true}
+            interactionMode={state.interactionMode}
+          />
+        </div>
+
         <Comparator
           value1={state.blockCount1}
           value2={state.blockCount2}
           show={state.showComparator}
         />
-        <Stack
-          count={state.blockCount2}
-          setCount={(count) => setState({ ...state, blockCount2: count })}
-          isInput={state.isInput}
-          interactionMode={state.interactionMode}
-        />
+
+        <div ref={rightStackRef}>
+          <Stack
+            count={state.blockCount2}
+            setCount={(count) => setState({ ...state, blockCount2: count })}
+            isInput={false}
+            interactionMode={state.interactionMode}
+          />
+        </div>
+
         <ComparatorLines
           drawnLines={state.drawnLines}
           comparatorLines={state.comparatorLines}
