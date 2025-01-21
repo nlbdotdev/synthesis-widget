@@ -14,7 +14,7 @@ const ControlPanel = ({
   playComparatorAnimation,
 }: ControlPanelProps) => {
   return (
-    <div className="flex flex-row bg-gray-100 min-w-[60vw] min-h-[200px] select-none">
+    <div className="flex flex-row bg-gray-100 min-w-[60vw] min-h-[200px] select-none z-50">
       <div className="w-2/3 flex flex-col items-start justify-center space-y-4 px-8">
         <label className="flex items-center space-x-2">
           <span>Interaction Mode: </span>
