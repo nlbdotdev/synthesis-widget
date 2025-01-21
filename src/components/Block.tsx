@@ -8,8 +8,8 @@ const DRAG_THRESHOLD_X = 120
 const DRAG_THRESHOLD_Y = 200
 const SCALE_INITIAL = 0
 const SCALE_NORMAL = 1
-const SCALE_HOVER = 1.2
-const SCALE_DRAG = 1.4
+const SCALE_HOVER = 1.1
+const SCALE_DRAG = 1.2
 const Z_INDEX_DRAGGING = 1000 // High z-index for dragged blocks
 
 interface BlockProps {
@@ -23,6 +23,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
   const [isOutside, setIsOutside] = React.useState(false)
   const [startPoint, setStartPoint] = React.useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = React.useState(false)
+  const [isHovered, setIsHovered] = React.useState(false)
 
   const handleDragStart = (_event: any, info: any) => {
     setStartPoint({ x: info.point.x, y: info.point.y })
@@ -76,17 +77,26 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
       : {}
 
   return (
-    <motion.div
-      initial={{ scale: SCALE_INITIAL }}
-      animate={{ scale: SCALE_NORMAL }}
-      className="-mt-2 first:mt-0"
+    <div
       style={{
-        zIndex: isDragging ? Z_INDEX_DRAGGING : count - index,
+        position: 'relative',
+        zIndex:
+          isDragging || (isHovered && interactionMode === 'addRemove')
+            ? Z_INDEX_DRAGGING
+            : count - index,
+        marginBottom: '-0.5rem',
       }}
-      {...interactionProps}
     >
-      <Cube isOutside={isOutside} />
-    </motion.div>
+      <motion.div
+        initial={{ scale: SCALE_INITIAL }}
+        animate={{ scale: SCALE_NORMAL }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        {...interactionProps}
+      >
+        <Cube isOutside={isOutside} />
+      </motion.div>
+    </div>
   )
 }
 
