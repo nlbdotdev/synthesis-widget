@@ -217,13 +217,12 @@ const ComparatorLines = ({
           }
           strokeWidth="16"
           strokeDasharray="50,25"
+          strokeLinecap="round"
           markerEnd={
             isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
               ? 'url(#dot)'
               : 'url(#dot-invalid)'
           }
-          markerWidth="3"
-          markerHeight="3"
         />
       )}
 
@@ -239,10 +238,11 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke={line.type === 'top' ? '#16a34a' : '#15803d'}
+            stroke="#4B5563"
             strokeWidth="16"
             strokeDasharray="5,5"
-            markerEnd="url(#dot)"
+            strokeOpacity="0.5"
+            strokeLinecap="round"
           />
         ))}
     </motion.svg>

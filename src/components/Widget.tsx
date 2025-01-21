@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Stack from './Stack'
 import ControlPanel from './ControlPanel'
 import ComparatorLines from './ComparatorLines'
@@ -122,6 +122,41 @@ const getStackTopBottomPositions = (
     },
     centerX: stackCenterX,
   }
+}
+
+const generateComparatorLines = (
+  leftStack: HTMLDivElement | null,
+  rightStack: HTMLDivElement | null
+): Line[] => {
+  const leftPositions = getStackTopBottomPositions(leftStack)
+  const rightPositions = getStackTopBottomPositions(rightStack)
+
+  if (!leftPositions || !rightPositions) return []
+
+  return [
+    {
+      start: {
+        x: leftPositions.centerX,
+        y: leftPositions.top.y,
+      },
+      end: {
+        x: rightPositions.centerX,
+        y: rightPositions.top.y,
+      },
+      type: 'top',
+    },
+    {
+      start: {
+        x: leftPositions.centerX,
+        y: leftPositions.bottom.y,
+      },
+      end: {
+        x: rightPositions.centerX,
+        y: rightPositions.bottom.y,
+      },
+      type: 'bottom',
+    },
+  ]
 }
 
 const Widget = () => {
@@ -301,6 +336,23 @@ const Widget = () => {
       })
     }
   }
+
+  // Add this effect to update comparator lines when block counts change
+  useEffect(() => {
+    // Add a small delay to allow blocks to finish scaling animation
+    const timer = setTimeout(() => {
+      const newComparatorLines = generateComparatorLines(
+        leftStackRef.current,
+        rightStackRef.current
+      )
+      setState((prev) => ({
+        ...prev,
+        comparatorLines: newComparatorLines,
+      }))
+    }, 100) // Match this with the block scale animation duration
+
+    return () => clearTimeout(timer)
+  }, [state.blockCount1, state.blockCount2, state.drawnLines])
 
   return (
     <div className="flex flex-col items-center space-y-8">
