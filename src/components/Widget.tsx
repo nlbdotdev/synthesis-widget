@@ -21,7 +21,7 @@ interface ComparatorProps {
 
 const Comparator = ({ value1, value2, show }: ComparatorProps) => {
   return (
-    <div className="text-6xl font-bold px-12 mx-16 py-6 bg-gray-100 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+    <div className="text-6xl font-bold px-12 mx-16 py-6 bg-gray-100 rounded-xl shadow-md transition-shadow select-none">
       {show ? (value1 > value2 ? '>' : value1 < value2 ? '<' : '=') : '?'}
     </div>
   )
