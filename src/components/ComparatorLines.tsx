@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { InteractionMode } from './Widget'
 
 interface Point {
@@ -21,7 +21,7 @@ interface ComparatorLinesProps {
   showComparatorLines: boolean
   interactionMode: InteractionMode
   onLineDrawStart: (point: Point, isTouchEvent: boolean) => void
-  onLineDrawEnd: (point: Point) => void
+  onLineDrawEnd: (point: Point, isTouchEvent: boolean) => void
   onLineDrawMove: (point: Point) => void
   rightStackRef: HTMLDivElement | null
 }
@@ -38,15 +38,20 @@ const ComparatorLines = ({
   rightStackRef,
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const hasMoved = useRef(false)
+  const isTouch = useRef(false)
+  const lastTouchEnd = useRef(0)
+  const lastLineEnd = useRef(0)
+  const [isInCooldown, setIsInCooldown] = useState(false)
 
   useEffect(() => {
-    // Add non-passive touch-move listener to prevent scrolling
     const element = svgRef.current
     if (!element) return
 
     const handleTouchMove = (e: TouchEvent) => {
       if (currentLine) {
         e.preventDefault()
+        hasMoved.current = true
       }
     }
 
@@ -96,6 +101,15 @@ const ComparatorLines = ({
     return isInXBounds && isInYBounds
   }
 
+  const startCooldown = () => {
+    console.log('Starting cooldown')
+    setIsInCooldown(true)
+    setTimeout(() => {
+      console.log('Ending cooldown')
+      setIsInCooldown(false)
+    }, 200)
+  }
+
   return (
     <motion.svg
       ref={svgRef}
@@ -105,27 +119,70 @@ const ComparatorLines = ({
           : 'pointer-events-none'
       }`}
       onMouseDown={(e) => {
+        console.log('Mouse down:', {
+          isInCooldown,
+          isTouch: isTouch.current,
+          hasCurrentLine: !!currentLine,
+        })
+
+        // Don't start a new line if there's already an active one
+        if (isInCooldown || isTouch.current || currentLine) {
+          console.log(
+            'Ignoring mouse down due to cooldown, touch, or active line'
+          )
+          e.preventDefault()
+          return
+        }
+
+        isTouch.current = false
         const rect = e.currentTarget.getBoundingClientRect()
         const point = getPointFromEvent(e, rect)
         if (point) onLineDrawStart(point, false)
       }}
       onTouchStart={(e) => {
+        console.log('Touch start:', {
+          isInCooldown,
+          hasCurrentLine: !!currentLine,
+        })
+
+        // Don't start a new line if there's already an active one
+        if (isInCooldown || currentLine) {
+          console.log('Ignoring touch start due to cooldown or active line')
+          e.preventDefault()
+          return
+        }
+
+        isTouch.current = true
+        hasMoved.current = false
         const rect = e.currentTarget.getBoundingClientRect()
         const point = getPointFromEvent(e, rect)
         if (point) onLineDrawStart(point, true)
       }}
       onClick={(e) => {
-        if (!currentLine) return
+        console.log('Click:', { currentLine, isTouch: isTouch.current })
+        if (!currentLine || isTouch.current) return
         const rect = e.currentTarget.getBoundingClientRect()
         const point = getPointFromEvent(e, rect)
-        if (point) onLineDrawEnd(point)
+        if (point) {
+          onLineDrawEnd(point, false)
+          startCooldown()
+        }
       }}
       onTouchEnd={(e) => {
+        lastTouchEnd.current = Date.now()
         if (!currentLine) return
-        if (currentLine.end) onLineDrawEnd(currentLine.end)
+        if (!hasMoved.current) {
+          onLineDrawEnd({ x: -1, y: -1 }, true)
+        } else if (currentLine.end) {
+          onLineDrawEnd(currentLine.end, true)
+        }
+        lastLineEnd.current = Date.now()
+        setTimeout(() => {
+          isTouch.current = false
+        }, 100)
       }}
       onMouseMove={(e) => {
-        if (!currentLine) return
+        if (!currentLine || isTouch.current) return
         const rect = e.currentTarget.getBoundingClientRect()
         const point = getPointFromEvent(e, rect)
         if (point) onLineDrawMove(point)
@@ -142,23 +199,23 @@ const ComparatorLines = ({
       <defs>
         <marker
           id="dot"
-          viewBox="0 0 20 20"
-          refX="10"
-          refY="10"
-          markerWidth="10"
-          markerHeight="10"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="4"
+          markerHeight="4"
         >
-          <circle cx="10" cy="10" r="6" fill="currentColor" />
+          <circle cx="5" cy="5" r="3" fill="currentColor" />
         </marker>
         <marker
           id="dot-invalid"
-          viewBox="0 0 20 20"
-          refX="10"
-          refY="10"
-          markerWidth="10"
-          markerHeight="10"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="4"
+          markerHeight="4"
         >
-          <circle cx="10" cy="10" r="6" fill="#ef4444" />
+          <circle cx="5" cy="5" r="3" fill="#ef4444" />
         </marker>
       </defs>
 
@@ -174,8 +231,9 @@ const ComparatorLines = ({
           x2={`${line.end.x}%`}
           y2={`${line.end.y}%`}
           stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
-          strokeWidth="4"
-          markerEnd="url(#dot)"
+          strokeWidth="16"
+          strokeLinecap="round"
+          fill="none"
         />
       ))}
 
@@ -193,13 +251,15 @@ const ComparatorLines = ({
                 : '#1d4ed8'
               : '#ef4444'
           }
-          strokeWidth="4"
-          strokeDasharray="5,5"
+          strokeWidth="16"
+          strokeDasharray="50,25"
           markerEnd={
             isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
               ? 'url(#dot)'
               : 'url(#dot-invalid)'
           }
+          markerWidth="3"
+          markerHeight="3"
         />
       )}
 
@@ -216,7 +276,7 @@ const ComparatorLines = ({
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
             stroke={line.type === 'top' ? '#16a34a' : '#15803d'}
-            strokeWidth="4"
+            strokeWidth="16"
             strokeDasharray="5,5"
             markerEnd="url(#dot)"
           />
