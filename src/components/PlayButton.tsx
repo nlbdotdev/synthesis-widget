@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface PlayButtonProps {
   className?: string
   isReset?: boolean
