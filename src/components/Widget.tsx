@@ -186,6 +186,7 @@ const Widget = () => {
           currentLine={state.currentLine}
           isDrawing={state.isDrawing}
           showComparatorLines={state.showComparatorLines}
+          interactionMode={state.interactionMode}
           onLineDrawStart={handleLineDrawStart}
           onLineDrawEnd={handleLineDrawEnd}
           onLineDrawMove={handleLineDrawMove}

@@ -1,4 +1,5 @@
 import React from 'react'
+import { InteractionMode } from './Widget'
 
 interface Point {
   x: number
@@ -16,6 +17,7 @@ interface ComparatorLinesProps {
   currentLine: Line | null
   isDrawing: boolean
   showComparatorLines: boolean
+  interactionMode: InteractionMode
   onLineDrawStart: (point: Point) => void
   onLineDrawEnd: (point: Point) => void
   onLineDrawMove: (point: Point) => void
@@ -27,6 +29,7 @@ const ComparatorLines = ({
   currentLine,
   isDrawing,
   showComparatorLines,
+  interactionMode,
   onLineDrawStart,
   onLineDrawEnd,
   onLineDrawMove,
@@ -59,7 +62,11 @@ const ComparatorLines = ({
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full pointer-events-auto"
+      className={`absolute inset-0 w-full h-full ${
+        interactionMode === 'drawCompare'
+          ? 'pointer-events-auto'
+          : 'pointer-events-none'
+      }`}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
