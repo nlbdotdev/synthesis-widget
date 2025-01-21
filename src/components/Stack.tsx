@@ -131,7 +131,7 @@ const Stack = ({
   return (
     <div
       data-stack={isInput ? '1' : '2'}
-      className="flex flex-col justify-between h-[85vh] bg-gray-100 min-w-[200px] rounded-xl"
+      className="flex flex-col justify-between h-[85vh] bg-gray-100 min-w-[300px] rounded-xl"
     >
       <BlocksContainer
         count={count}

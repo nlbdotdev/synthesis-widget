@@ -391,7 +391,7 @@ const Widget = () => {
 
   return (
     <div className="flex flex-col items-center h-screen">
-      <div className="flex flex-row items-center justify-center gap-32 w-full h-full px-16">
+      <div className="flex flex-row items-center justify-center gap-64 w-full h-full px-16">
         <div ref={leftStackRef}>
           <Stack
             count={state.blockCount1}
