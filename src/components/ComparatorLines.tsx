@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { InteractionMode } from './Widget'
 
 interface Point {
@@ -40,9 +40,6 @@ const ComparatorLines = ({
   const svgRef = useRef<SVGSVGElement>(null)
   const hasMoved = useRef(false)
   const isTouch = useRef(false)
-  const lastTouchEnd = useRef(0)
-  const lastLineEnd = useRef(0)
-  const [isInCooldown, setIsInCooldown] = useState(false)
 
   useEffect(() => {
     const element = svgRef.current
@@ -101,15 +98,6 @@ const ComparatorLines = ({
     return isInXBounds && isInYBounds
   }
 
-  const startCooldown = () => {
-    console.log('Starting cooldown')
-    setIsInCooldown(true)
-    setTimeout(() => {
-      console.log('Ending cooldown')
-      setIsInCooldown(false)
-    }, 200)
-  }
-
   return (
     <motion.svg
       ref={svgRef}
@@ -119,17 +107,7 @@ const ComparatorLines = ({
           : 'pointer-events-none'
       }`}
       onMouseDown={(e) => {
-        console.log('Mouse down:', {
-          isInCooldown,
-          isTouch: isTouch.current,
-          hasCurrentLine: !!currentLine,
-        })
-
-        // Don't start a new line if there's already an active one
-        if (isInCooldown || isTouch.current || currentLine) {
-          console.log(
-            'Ignoring mouse down due to cooldown, touch, or active line'
-          )
+        if (isTouch.current || currentLine) {
           e.preventDefault()
           return
         }
@@ -140,18 +118,10 @@ const ComparatorLines = ({
         if (point) onLineDrawStart(point, false)
       }}
       onTouchStart={(e) => {
-        console.log('Touch start:', {
-          isInCooldown,
-          hasCurrentLine: !!currentLine,
-        })
-
-        // Don't start a new line if there's already an active one
-        if (isInCooldown || currentLine) {
-          console.log('Ignoring touch start due to cooldown or active line')
+        if (currentLine) {
           e.preventDefault()
           return
         }
-
         isTouch.current = true
         hasMoved.current = false
         const rect = e.currentTarget.getBoundingClientRect()
@@ -159,24 +129,18 @@ const ComparatorLines = ({
         if (point) onLineDrawStart(point, true)
       }}
       onClick={(e) => {
-        console.log('Click:', { currentLine, isTouch: isTouch.current })
         if (!currentLine || isTouch.current) return
         const rect = e.currentTarget.getBoundingClientRect()
         const point = getPointFromEvent(e, rect)
-        if (point) {
-          onLineDrawEnd(point, false)
-          startCooldown()
-        }
+        if (point) onLineDrawEnd(point, false)
       }}
-      onTouchEnd={(e) => {
-        lastTouchEnd.current = Date.now()
+      onTouchEnd={(_e) => {
         if (!currentLine) return
         if (!hasMoved.current) {
           onLineDrawEnd({ x: -1, y: -1 }, true)
         } else if (currentLine.end) {
           onLineDrawEnd(currentLine.end, true)
         }
-        lastLineEnd.current = Date.now()
         setTimeout(() => {
           isTouch.current = false
         }, 100)

@@ -109,8 +109,6 @@ const Widget = () => {
     currentLine: null,
   })
 
-  const [clickDrawing, setClickDrawing] = useState<boolean>(false)
-
   // Add a ref to track if we should ignore the next mouse up
   const ignoreNextMouseUp = useRef(false)
 
@@ -119,11 +117,6 @@ const Widget = () => {
   }
 
   const handleLineDrawStart = (point: Point, isTouchEvent: boolean) => {
-    console.log('DrawStart:', {
-      point,
-      isTouchEvent,
-      currentState: state.currentLine,
-    })
     if (state.interactionMode !== 'drawCompare') return
 
     const leftBounds = getStackBounds(leftStackRef.current)
@@ -134,29 +127,21 @@ const Widget = () => {
       x: (point.x * window.innerWidth) / 100,
       y: (point.y * window.innerHeight) / 100,
     }
-    console.log('Absolute point:', absolutePoint)
 
     // For touch events, we don't want to handle multiple starts
     if (isTouchEvent && state.isDrawing) {
-      console.log('Ignoring touch start - already drawing')
       return
     }
 
     // Check if point is in left stack
     const isTopHalf = absolutePoint.y < leftBounds.centerY
     const lineType = isTopHalf ? 'top' : 'bottom'
-    console.log('Start validation:', {
-      isValid: isValidStartPoint(absolutePoint, leftBounds, lineType),
-      leftBounds,
-      lineType,
-    })
 
     if (isValidStartPoint(absolutePoint, leftBounds, lineType)) {
       const hasLineOfType = state.drawnLines.some(
         (line) => line.type === lineType
       )
       if (!hasLineOfType) {
-        console.log('Setting new line state')
         setState({
           ...state,
           isDrawing: true,
@@ -193,21 +178,12 @@ const Widget = () => {
   }
 
   const handleLineDrawEnd = (point: Point, isTouchEvent: boolean = false) => {
-    console.log('DrawEnd:', {
-      point,
-      isTouchEvent,
-      currentLine: state.currentLine,
-      isDrawing: state.isDrawing,
-    })
-
     if (!isTouchEvent && ignoreNextMouseUp.current) {
-      console.log('Ignoring mouse up event')
       ignoreNextMouseUp.current = false
       return
     }
 
     if (!state.currentLine) {
-      console.log('No current line to end')
       return
     }
 
@@ -219,7 +195,6 @@ const Widget = () => {
       x: (point.x * window.innerWidth) / 100,
       y: (point.y * window.innerHeight) / 100,
     }
-    console.log('End absolute point:', absolutePoint)
 
     // For touch events, if the start and end points are the same, clear the line
     if (
@@ -227,7 +202,6 @@ const Widget = () => {
       Math.abs(state.currentLine.start.x - state.currentLine.end.x) < 1 &&
       Math.abs(state.currentLine.start.y - state.currentLine.end.y) < 1
     ) {
-      console.log('Touch ended without movement, clearing line')
       setState({
         ...state,
         isDrawing: false,
@@ -236,18 +210,7 @@ const Widget = () => {
       return
     }
 
-    console.log('End validation:', {
-      isValid: isValidEndPoint(
-        absolutePoint,
-        rightBounds,
-        state.currentLine.type
-      ),
-      rightBounds,
-      lineType: state.currentLine.type,
-    })
-
     if (isValidEndPoint(absolutePoint, rightBounds, state.currentLine.type)) {
-      console.log('Setting valid end point')
       setState({
         ...state,
         isDrawing: false,
@@ -266,7 +229,6 @@ const Widget = () => {
         currentLine: null,
       })
     } else {
-      console.log('Invalid end point, clearing line')
       setState({
         ...state,
         isDrawing: false,
