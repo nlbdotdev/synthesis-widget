@@ -76,21 +76,37 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
       : {}
 
   return (
-    <div
+    <motion.div
       style={{
         position: 'relative',
         zIndex: isDragging ? Z_INDEX_DRAGGING : count - index,
         marginBottom: '-0.5rem',
       }}
+      layout
+      transition={{
+        layout: {
+          type: 'spring',
+          damping: 15, // Lower damping for more bounce
+          stiffness: 300, // Higher stiffness for faster movement
+          mass: 0.8, // Slightly lower mass for quicker response
+        },
+      }}
     >
       <motion.div
+        data-block
         initial={{ scale: SCALE_INITIAL }}
         animate={{ scale: SCALE_NORMAL }}
+        transition={{
+          type: 'spring',
+          damping: 12,
+          stiffness: 400,
+          mass: 0.8,
+        }}
         {...interactionProps}
       >
         <Cube isOutside={isOutside} />
       </motion.div>
-    </div>
+    </motion.div>
   )
 }
 
