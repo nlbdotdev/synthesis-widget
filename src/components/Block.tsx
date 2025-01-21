@@ -9,7 +9,7 @@ const DRAG_THRESHOLD_Y = 200
 const SCALE_INITIAL = 0
 const SCALE_NORMAL = 1
 const SCALE_HOVER = 1.2
-const SCALE_DRAG = 1.4
+const SCALE_DRAG = 1.3
 const Z_INDEX_DRAGGING = 1000 // High z-index for dragged blocks
 
 interface BlockProps {
@@ -77,15 +77,35 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
 
   return (
     <motion.div
-      initial={{ scale: SCALE_INITIAL }}
-      animate={{ scale: SCALE_NORMAL }}
-      className="-mt-2 first:mt-0"
       style={{
+        position: 'relative',
         zIndex: isDragging ? Z_INDEX_DRAGGING : count - index,
+        marginBottom: '-0.5rem',
       }}
-      {...interactionProps}
+      layout
+      transition={{
+        layout: {
+          type: 'spring',
+          damping: 15, // Lower damping for more bounce
+          stiffness: 300, // Higher stiffness for faster movement
+          mass: 0.8, // Slightly lower mass for quicker response
+        },
+      }}
     >
-      <Cube isOutside={isOutside} />
+      <motion.div
+        data-block
+        initial={{ scale: SCALE_INITIAL }}
+        animate={{ scale: SCALE_NORMAL }}
+        transition={{
+          type: 'spring',
+          damping: 12,
+          stiffness: 400,
+          mass: 0.8,
+        }}
+        {...interactionProps}
+      >
+        <Cube isOutside={isOutside} />
+      </motion.div>
     </motion.div>
   )
 }
