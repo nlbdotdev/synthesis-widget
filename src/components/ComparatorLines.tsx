@@ -75,19 +75,15 @@ const ComparatorLines = ({
     return isInXBounds && isInYBounds
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const point = getRelativeCoordinates(e)
-    if (point) onLineDrawStart(point)
-  }
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!currentLine) return
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const point = getRelativeCoordinates(e)
-    if (point) onLineDrawMove(point)
-  }
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
 
-  const handleMouseUp = (e: React.MouseEvent) => {
-    const point = getRelativeCoordinates(e)
-    if (point) onLineDrawEnd(point)
+    onLineDrawMove({ x, y })
   }
 
   return (
@@ -98,9 +94,15 @@ const ComparatorLines = ({
           ? 'pointer-events-auto'
           : 'pointer-events-none'
       }`}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onClick={(e) => {
+        const svg = e.currentTarget
+        const rect = svg.getBoundingClientRect()
+        const x = ((e.clientX - rect.left) / rect.width) * 100
+        const y = ((e.clientY - rect.top) / rect.height) * 100
+        onLineDrawStart({ x, y })
+      }}
+      onPointerMove={handlePointerMove}
+      style={{ touchAction: 'none' }} // Prevents touch scrolling while drawing
       initial={false}
     >
       <defs>

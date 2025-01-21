@@ -116,6 +116,40 @@ const Widget = () => {
   const handleLineDrawStart = (point: Point) => {
     if (state.interactionMode !== 'drawCompare') return
 
+    // If we're already drawing, this is a completion click
+    if (state.isDrawing && state.currentLine) {
+      const rightBounds = getStackBounds(rightStackRef.current)
+      if (!rightBounds) return
+
+      const absolutePoint = {
+        x: (point.x * window.innerWidth) / 100,
+        y: (point.y * window.innerHeight) / 100,
+      }
+
+      if (isValidEndPoint(absolutePoint, rightBounds, state.currentLine.type)) {
+        setState({
+          ...state,
+          isDrawing: false,
+          drawnLines: [
+            ...state.drawnLines.filter(
+              (line) => line.type !== state.currentLine!.type
+            ),
+            { ...state.currentLine, end: point },
+          ],
+          currentLine: null,
+        })
+      } else {
+        // Invalid end point - cancel the line
+        setState({
+          ...state,
+          isDrawing: false,
+          currentLine: null,
+        })
+      }
+      return
+    }
+
+    // This is the initial click to start drawing
     const leftBounds = getStackBounds(leftStackRef.current)
     if (!leftBounds) return
 
@@ -193,9 +227,13 @@ const Widget = () => {
 
   const handleLineDrawMove = (point: Point) => {
     if (!state.isDrawing || !state.currentLine) return
+
     setState({
       ...state,
-      currentLine: { ...state.currentLine, end: point },
+      currentLine: {
+        ...state.currentLine,
+        end: point,
+      },
     })
   }
 
