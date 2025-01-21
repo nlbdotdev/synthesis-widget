@@ -8,8 +8,8 @@ const DRAG_THRESHOLD_X = 120
 const DRAG_THRESHOLD_Y = 200
 const SCALE_INITIAL = 0
 const SCALE_NORMAL = 1
-const SCALE_HOVER = 1.1
-const SCALE_DRAG = 1.2
+const SCALE_HOVER = 1.2
+const SCALE_DRAG = 1.3
 const Z_INDEX_DRAGGING = 1000 // High z-index for dragged blocks
 
 interface BlockProps {
@@ -80,10 +80,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
     <div
       style={{
         position: 'relative',
-        zIndex:
-          isDragging || (isHovered && interactionMode === 'addRemove')
-            ? Z_INDEX_DRAGGING
-            : count - index,
+        zIndex: isDragging ? Z_INDEX_DRAGGING : count - index,
         marginBottom: '-0.5rem',
       }}
     >
