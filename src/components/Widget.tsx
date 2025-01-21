@@ -136,7 +136,7 @@ const Widget = () => {
           <Stack
             count={state.blockCount1}
             setCount={(count) => setState({ ...state, blockCount1: count })}
-            isInput={true}
+            isInput={state.isInput}
             interactionMode={state.interactionMode}
           />
         </div>
@@ -151,7 +151,7 @@ const Widget = () => {
           <Stack
             count={state.blockCount2}
             setCount={(count) => setState({ ...state, blockCount2: count })}
-            isInput={false}
+            isInput={state.isInput}
             interactionMode={state.interactionMode}
           />
         </div>
