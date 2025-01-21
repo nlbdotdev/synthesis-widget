@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Stack from './Stack'
 import ControlPanel from './ControlPanel'
-import ComparatorLines from './ComparatorLines'
+import ComparatorLines, { getOperatorLinePositions } from './ComparatorLines'
 import { Point } from 'motion/react'
 
 export type InteractionMode = 'none' | 'addRemove' | 'drawCompare'
@@ -24,6 +24,10 @@ export interface WidgetState {
   isDrawing: boolean
   currentLine: Line | null
   autoSnapLines: boolean
+  isAnimating: boolean
+  animationOperator: string
+  animationLines: { originalStart: Point; originalEnd: Point }[]
+  hasCompletedAnimation: boolean
 }
 
 interface ComparatorProps {
@@ -175,13 +179,63 @@ const Widget = () => {
     isDrawing: false,
     currentLine: null,
     autoSnapLines: true,
+    isAnimating: false,
+    animationOperator: '',
+    animationLines: [],
+    hasCompletedAnimation: false,
   })
 
   // Add a ref to track if we should ignore the next mouse up
   const ignoreNextMouseUp = useRef(false)
 
   const playComparatorAnimation = () => {
-    //    TODO
+    // Only play if we have both lines drawn
+    if (state.drawnLines.length !== 2) return
+
+    // Calculate target operator based on values
+    const operator =
+      state.blockCount1 > state.blockCount2
+        ? '>'
+        : state.blockCount1 < state.blockCount2
+          ? '<'
+          : '='
+
+    // Start animation sequence
+    setState((prev) => ({
+      ...prev,
+      isAnimating: true,
+      showComparator: false,
+      animationOperator: operator,
+      // Keep track of original line positions for animation
+      animationLines: state.drawnLines.map((line) => ({
+        ...line,
+        originalStart: { ...line.start },
+        originalEnd: { ...line.end },
+      })),
+    }))
+
+    // After animation completes, show the comparator but keep the animated lines
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        isAnimating: false,
+        showComparator: true,
+        hasCompletedAnimation: true,
+        // Convert the animated lines to their final positions
+        drawnLines: getOperatorLinePositions(operator, 50, 35),
+      }))
+    }, 1000)
+  }
+
+  const resetComparison = () => {
+    setState((prev) => ({
+      ...prev,
+      drawnLines: [],
+      animationLines: [],
+      showComparator: false,
+      hasCompletedAnimation: false,
+      interactionMode: 'addRemove',
+    }))
   }
 
   const handleLineDrawStart = (point: Point, isTouchEvent: boolean) => {
@@ -391,12 +445,16 @@ const Widget = () => {
           onLineDrawEnd={handleLineDrawEnd}
           onLineDrawMove={handleLineDrawMove}
           rightStackRef={rightStackRef.current}
+          isAnimating={state.isAnimating}
+          animationOperator={state.animationOperator}
+          animationLines={state.drawnLines}
         />
       </div>
       <ControlPanel
         state={state}
         setState={setState}
         playComparatorAnimation={playComparatorAnimation}
+        resetComparison={resetComparison}
       />
     </div>
   )

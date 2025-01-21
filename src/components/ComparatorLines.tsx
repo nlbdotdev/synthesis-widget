@@ -24,6 +24,66 @@ interface ComparatorLinesProps {
   onLineDrawEnd: (point: Point, isTouchEvent: boolean) => void
   onLineDrawMove: (point: Point) => void
   rightStackRef: HTMLDivElement | null
+  isAnimating?: boolean
+  animationOperator?: string
+  animationLines?: Line[]
+}
+
+// Helper function to calculate operator line positions
+export const getOperatorLinePositions = (
+  operator: string,
+  centerX: number,
+  centerY: number
+) => {
+  const SIZE = 10 // Reduced size (was 20)
+
+  switch (operator) {
+    case '>':
+      return [
+        {
+          // Top line always goes left to right
+          start: { x: centerX - SIZE / 2, y: centerY - SIZE / 2 },
+          end: { x: centerX + SIZE / 2, y: centerY },
+          type: 'top' as const,
+        },
+        {
+          // Bottom line always goes left to right
+          start: { x: centerX - SIZE / 2, y: centerY + SIZE / 2 },
+          end: { x: centerX + SIZE / 2, y: centerY },
+          type: 'bottom' as const,
+        },
+      ]
+    case '<':
+      return [
+        {
+          // Top line always goes left to right
+          start: { x: centerX - SIZE / 2, y: centerY },
+          end: { x: centerX + SIZE / 2, y: centerY - SIZE / 2 },
+          type: 'top' as const,
+        },
+        {
+          // Bottom line always goes left to right
+          start: { x: centerX - SIZE / 2, y: centerY },
+          end: { x: centerX + SIZE / 2, y: centerY + SIZE / 2 },
+          type: 'bottom' as const,
+        },
+      ]
+    case '=':
+      return [
+        {
+          start: { x: centerX - SIZE / 2, y: centerY - SIZE / 4 },
+          end: { x: centerX + SIZE / 2, y: centerY - SIZE / 4 },
+          type: 'top' as const,
+        },
+        {
+          start: { x: centerX - SIZE / 2, y: centerY + SIZE / 4 },
+          end: { x: centerX + SIZE / 2, y: centerY + SIZE / 4 },
+          type: 'bottom' as const,
+        },
+      ]
+    default:
+      return []
+  }
 }
 
 const ComparatorLines = ({
@@ -36,6 +96,9 @@ const ComparatorLines = ({
   onLineDrawEnd,
   onLineDrawMove,
   rightStackRef,
+  isAnimating = false,
+  animationOperator = '',
+  animationLines = [],
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const hasMoved = useRef(false)
@@ -97,6 +160,14 @@ const ComparatorLines = ({
 
     return isInXBounds && isInYBounds
   }
+
+  // Calculate center position for operator animation
+  const centerX = 50 // Center of SVG viewport
+  const centerY = 35 // Moved up to align with stacks (was 50)
+
+  const targetOperatorLines = isAnimating
+    ? getOperatorLinePositions(animationOperator, centerX, centerY)
+    : []
 
   return (
     <motion.svg
@@ -183,23 +254,66 @@ const ComparatorLines = ({
         </marker>
       </defs>
 
-      {/* Draw completed student lines */}
-      {drawnLines.map((line, index) => (
-        <motion.line
-          key={`drawn-${index}`}
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.3 }}
-          x1={`${line.start.x}%`}
-          y1={`${line.start.y}%`}
-          x2={`${line.end.x}%`}
-          y2={`${line.end.y}%`}
-          stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
-          strokeWidth="16"
-          strokeLinecap="round"
-          fill="none"
-        />
-      ))}
+      {/* Draw completed student lines or animated operator lines */}
+      {!isAnimating &&
+        drawnLines.map((line, index) => (
+          <motion.line
+            key={`drawn-${index}`}
+            initial={
+              line.type === 'top' || line.type === 'bottom'
+                ? { pathLength: 1 }
+                : { pathLength: 0 }
+            }
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.3 }}
+            x1={`${line.start.x}%`}
+            y1={`${line.start.y}%`}
+            x2={`${line.end.x}%`}
+            y2={`${line.end.y}%`}
+            stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
+            strokeWidth="16"
+            strokeLinecap="round"
+            fill="none"
+          />
+        ))}
+
+      {/* Animated operator lines */}
+      {isAnimating &&
+        targetOperatorLines.map((targetLine) => {
+          // Find the original line that matches the type (top/bottom)
+          const originalLine = animationLines.find(
+            (line) => line.type === targetLine.type
+          )
+          if (!originalLine) return null
+
+          return (
+            <motion.line
+              key={`operator-${targetLine.type}`}
+              initial={{
+                x1: `${originalLine.start.x}%`,
+                y1: `${originalLine.start.y}%`,
+                x2: `${originalLine.end.x}%`,
+                y2: `${originalLine.end.y}%`,
+                pathLength: 1,
+              }}
+              animate={{
+                x1: `${targetLine.start.x}%`,
+                y1: `${targetLine.start.y}%`,
+                x2: `${targetLine.end.x}%`,
+                y2: `${targetLine.end.y}%`,
+                pathLength: 1,
+              }}
+              transition={{
+                duration: 1,
+                ease: 'easeInOut',
+              }}
+              stroke={targetLine.type === 'top' ? '#2563eb' : '#1d4ed8'}
+              strokeWidth="16"
+              strokeLinecap="round"
+              fill="none"
+            />
+          )
+        })}
 
       {/* Draw the current line being drawn */}
       {currentLine && (

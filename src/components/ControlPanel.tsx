@@ -6,12 +6,14 @@ interface ControlPanelProps {
   state: WidgetState
   setState: Dispatch<SetStateAction<WidgetState>>
   playComparatorAnimation: () => void
+  resetComparison: () => void
 }
 
 const ControlPanel = ({
   state,
   setState,
   playComparatorAnimation,
+  resetComparison,
 }: ControlPanelProps) => {
   return (
     <div className="flex flex-row bg-gray-100 min-w-[60vw] min-h-[200px] select-none z-50">
@@ -68,11 +70,18 @@ const ControlPanel = ({
       </div>
       <div className="w-1/3 flex items-center justify-center">
         <button
-          onClick={playComparatorAnimation}
+          onClick={
+            state.hasCompletedAnimation
+              ? resetComparison
+              : playComparatorAnimation
+          }
           className="p-2 rounded-full hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label="Play"
+          aria-label={state.hasCompletedAnimation ? 'Reset' : 'Play'}
         >
-          <PlayButton className="cursor-pointer" />
+          <PlayButton
+            className="cursor-pointer"
+            isReset={state.hasCompletedAnimation}
+          />
         </button>
       </div>
     </div>
