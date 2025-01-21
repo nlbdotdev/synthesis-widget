@@ -94,14 +94,26 @@ const ComparatorLines = ({
           ? 'pointer-events-auto'
           : 'pointer-events-none'
       }`}
-      onClick={(e) => {
-        const svg = e.currentTarget
-        const rect = svg.getBoundingClientRect()
+      onMouseDown={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
         const x = ((e.clientX - rect.left) / rect.width) * 100
         const y = ((e.clientY - rect.top) / rect.height) * 100
         onLineDrawStart({ x, y })
       }}
-      onPointerMove={handlePointerMove}
+      onClick={(e) => {
+        if (!currentLine) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = ((e.clientX - rect.left) / rect.width) * 100
+        const y = ((e.clientY - rect.top) / rect.height) * 100
+        onLineDrawEnd({ x, y })
+      }}
+      onMouseMove={(e) => {
+        if (!currentLine) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = ((e.clientX - rect.left) / rect.width) * 100
+        const y = ((e.clientY - rect.top) / rect.height) * 100
+        onLineDrawMove({ x, y })
+      }}
       style={{ touchAction: 'none' }} // Prevents touch scrolling while drawing
       initial={false}
     >

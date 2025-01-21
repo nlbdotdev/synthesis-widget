@@ -109,6 +109,11 @@ const Widget = () => {
     currentLine: null,
   })
 
+  const [clickDrawing, setClickDrawing] = useState<boolean>(false)
+
+  // Add a ref to track if we should ignore the next mouse up
+  const ignoreNextMouseUp = useRef(false)
+
   const playComparatorAnimation = () => {
     //    TODO
   }
@@ -116,40 +121,6 @@ const Widget = () => {
   const handleLineDrawStart = (point: Point) => {
     if (state.interactionMode !== 'drawCompare') return
 
-    // If we're already drawing, this is a completion click
-    if (state.isDrawing && state.currentLine) {
-      const rightBounds = getStackBounds(rightStackRef.current)
-      if (!rightBounds) return
-
-      const absolutePoint = {
-        x: (point.x * window.innerWidth) / 100,
-        y: (point.y * window.innerHeight) / 100,
-      }
-
-      if (isValidEndPoint(absolutePoint, rightBounds, state.currentLine.type)) {
-        setState({
-          ...state,
-          isDrawing: false,
-          drawnLines: [
-            ...state.drawnLines.filter(
-              (line) => line.type !== state.currentLine!.type
-            ),
-            { ...state.currentLine, end: point },
-          ],
-          currentLine: null,
-        })
-      } else {
-        // Invalid end point - cancel the line
-        setState({
-          ...state,
-          isDrawing: false,
-          currentLine: null,
-        })
-      }
-      return
-    }
-
-    // This is the initial click to start drawing
     const leftBounds = getStackBounds(leftStackRef.current)
     if (!leftBounds) return
 
@@ -157,6 +128,12 @@ const Widget = () => {
     const absolutePoint = {
       x: (point.x * window.innerWidth) / 100,
       y: (point.y * window.innerHeight) / 100,
+    }
+
+    // Check if we're already drawing
+    if (state.isDrawing) {
+      handleLineDrawEnd(point)
+      return
     }
 
     // Check if point is in left stack
@@ -183,12 +160,31 @@ const Widget = () => {
             type: lineType,
           },
         })
+        ignoreNextMouseUp.current = true
       }
     }
   }
 
-  const handleLineDrawEnd = (point: Point) => {
+  const handleLineDrawMove = (point: Point) => {
     if (!state.isDrawing || !state.currentLine) return
+
+    setState({
+      ...state,
+      currentLine: {
+        ...state.currentLine,
+        end: point,
+      },
+    })
+  }
+
+  const handleLineDrawEnd = (point: Point) => {
+    // Ignore this mouse up if it's from the initial click
+    if (ignoreNextMouseUp.current) {
+      ignoreNextMouseUp.current = false
+      return
+    }
+
+    if (!state.currentLine) return
 
     const rightBounds = getStackBounds(rightStackRef.current)
     if (!rightBounds) return
@@ -215,6 +211,7 @@ const Widget = () => {
             },
           },
         ],
+        currentLine: null,
       })
     } else {
       setState({
@@ -223,18 +220,6 @@ const Widget = () => {
         currentLine: null,
       })
     }
-  }
-
-  const handleLineDrawMove = (point: Point) => {
-    if (!state.isDrawing || !state.currentLine) return
-
-    setState({
-      ...state,
-      currentLine: {
-        ...state.currentLine,
-        end: point,
-      },
-    })
   }
 
   return (
