@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Stack from './Stack'
 import ControlPanel from './ControlPanel'
 import ComparatorLines from './ComparatorLines'
@@ -51,11 +51,6 @@ const Widget = () => {
   })
 
   const calculateComparatorLines = () => {
-    const container = document.querySelector('.flex.flex-row')
-    if (!container) return []
-
-    const containerRect = container.getBoundingClientRect()
-
     // Get the DOM elements for positioning
     const stack1Elements = document.querySelectorAll(
       '[data-stack="1"] [data-block]'
@@ -63,45 +58,70 @@ const Widget = () => {
     const stack2Elements = document.querySelectorAll(
       '[data-stack="2"] [data-block]'
     )
+    const comparatorElement = document.querySelector('[data-comparator]')
 
-    if (!stack1Elements.length || !stack2Elements.length) return []
+    if (!comparatorElement) return []
+
+    const comparatorRect = comparatorElement.getBoundingClientRect()
+    const comparatorCenter = {
+      x: comparatorRect.left + comparatorRect.width / 2,
+      y: comparatorRect.top + comparatorRect.height / 2,
+    }
 
     const lines: Line[] = []
+    const minCount = Math.min(state.blockCount1, state.blockCount2)
 
-    // Get the top blocks from each stack
-    const leftTop = stack1Elements[0].getBoundingClientRect()
-    const rightTop = stack2Elements[0].getBoundingClientRect()
+    // Create lines for matching pairs
+    for (let i = 0; i < minCount; i++) {
+      const block1 = stack1Elements[i]?.getBoundingClientRect()
+      const block2 = stack2Elements[i]?.getBoundingClientRect()
 
-    // Get the bottom blocks from each stack
-    const leftBottom =
-      stack1Elements[stack1Elements.length - 1].getBoundingClientRect()
-    const rightBottom =
-      stack2Elements[stack2Elements.length - 1].getBoundingClientRect()
+      if (block1 && block2) {
+        lines.push({
+          start: {
+            x: block1.right,
+            y: block1.top + block1.height / 2,
+          },
+          end: {
+            x: block2.left,
+            y: block2.top + block2.height / 2,
+          },
+        })
+      }
+    }
 
-    // Draw top line
-    lines.push({
-      start: {
-        x: leftTop.right - containerRect.left,
-        y: leftTop.top - containerRect.top + leftTop.height / 2,
-      },
-      end: {
-        x: rightTop.left - containerRect.left,
-        y: rightTop.top - containerRect.top + rightTop.height / 2,
-      },
-    })
+    // Add lines for extra blocks in stack 1
+    for (let i = minCount; i < state.blockCount1; i++) {
+      const block = stack1Elements[i]?.getBoundingClientRect()
+      if (block) {
+        lines.push({
+          start: {
+            x: block.right,
+            y: block.top + block.height / 2,
+          },
+          end: {
+            x: comparatorCenter.x - 20,
+            y: comparatorCenter.y,
+          },
+        })
+      }
+    }
 
-    // Draw bottom line (only if different from top line)
-    if (stack1Elements.length > 1 || stack2Elements.length > 1) {
-      lines.push({
-        start: {
-          x: leftBottom.right - containerRect.left,
-          y: leftBottom.top - containerRect.top + leftBottom.height / 2,
-        },
-        end: {
-          x: rightBottom.left - containerRect.left,
-          y: rightBottom.top - containerRect.top + rightBottom.height / 2,
-        },
-      })
+    // Add lines for extra blocks in stack 2
+    for (let i = minCount; i < state.blockCount2; i++) {
+      const block = stack2Elements[i]?.getBoundingClientRect()
+      if (block) {
+        lines.push({
+          start: {
+            x: comparatorCenter.x + 20,
+            y: comparatorCenter.y,
+          },
+          end: {
+            x: block.left,
+            y: block.top + block.height / 2,
+          },
+        })
+      }
     }
 
     return lines
@@ -140,43 +160,26 @@ const Widget = () => {
     })
   }
 
-  // Call this whenever showComparatorLines changes
-  useEffect(() => {
-    if (state.showComparatorLines) {
-      const lines = calculateComparatorLines()
-      setState((prev) => ({ ...prev, comparatorLines: lines }))
-    }
-  }, [state.showComparatorLines])
-
   return (
     <div className="flex flex-col items-center space-y-8">
       <div className="flex flex-row items-center justify-between w-full px-32 relative">
-        <div data-stack="1">
-          <Stack
-            count={state.blockCount1}
-            setCount={(count) => setState({ ...state, blockCount1: count })}
-            isInput={true}
-            interactionMode={state.interactionMode}
-          />
-        </div>
-
-        <div data-comparator>
-          <Comparator
-            value1={state.blockCount1}
-            value2={state.blockCount2}
-            show={state.showComparator}
-          />
-        </div>
-
-        <div data-stack="2">
-          <Stack
-            count={state.blockCount2}
-            setCount={(count) => setState({ ...state, blockCount2: count })}
-            isInput={false}
-            interactionMode={state.interactionMode}
-          />
-        </div>
-
+        <Stack
+          count={state.blockCount1}
+          setCount={(count) => setState({ ...state, blockCount1: count })}
+          isInput={state.isInput}
+          interactionMode={state.interactionMode}
+        />
+        <Comparator
+          value1={state.blockCount1}
+          value2={state.blockCount2}
+          show={state.showComparator}
+        />
+        <Stack
+          count={state.blockCount2}
+          setCount={(count) => setState({ ...state, blockCount2: count })}
+          isInput={state.isInput}
+          interactionMode={state.interactionMode}
+        />
         <ComparatorLines
           drawnLines={state.drawnLines}
           comparatorLines={state.comparatorLines}
