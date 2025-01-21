@@ -27,6 +27,7 @@ const ControlPanel = ({
                 ...state,
                 interactionMode: e.target
                   .value as WidgetState['interactionMode'],
+                isInput: e.target.value === 'addRemove',
               })
             }
             className="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -36,15 +37,48 @@ const ControlPanel = ({
             <option value="drawCompare">Draw & Compare</option>
           </select>
         </label>
-        <label className="flex items-center space-x-2">
-          <span>Input Mode: </span>
-          <input
-            type="checkbox"
-            checked={state.isInput}
-            onChange={(e) => setState({ ...state, isInput: e.target.checked })}
-            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-          />
-        </label>
+
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center space-x-2">
+            <span>Stack 1: </span>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              value={state.blockCount1}
+              onChange={(e) =>
+                setState({
+                  ...state,
+                  blockCount1: Math.min(
+                    10,
+                    Math.max(0, parseInt(e.target.value) || 0)
+                  ),
+                })
+              }
+              className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </label>
+          <label className="flex items-center space-x-2">
+            <span>Stack 2: </span>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              value={state.blockCount2}
+              onChange={(e) =>
+                setState({
+                  ...state,
+                  blockCount2: Math.min(
+                    10,
+                    Math.max(0, parseInt(e.target.value) || 0)
+                  ),
+                })
+              }
+              className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </label>
+        </div>
+
         <label className="flex items-center space-x-2">
           <span>Show Comparator:</span>
           <input
