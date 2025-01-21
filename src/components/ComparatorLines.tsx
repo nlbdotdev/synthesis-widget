@@ -23,6 +23,7 @@ interface ComparatorLinesProps {
   onLineDrawStart: (point: Point) => void
   onLineDrawEnd: (point: Point) => void
   onLineDrawMove: (point: Point) => void
+  rightStackRef: HTMLDivElement | null
 }
 
 const ComparatorLines = ({
@@ -34,6 +35,7 @@ const ComparatorLines = ({
   onLineDrawStart,
   onLineDrawEnd,
   onLineDrawMove,
+  rightStackRef,
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -49,12 +51,28 @@ const ComparatorLines = ({
   }
 
   // Helper to determine if endpoint is valid
-  const isValidEndpoint = (point: Point, lineType: 'top' | 'bottom') => {
-    return (
-      point.x >= 66 &&
-      ((lineType === 'top' && point.y < 50) ||
-        (lineType === 'bottom' && point.y >= 50))
-    )
+  const isValidEndpoint = (
+    point: Point,
+    rightStackRef: HTMLDivElement | null,
+    lineType: 'top' | 'bottom'
+  ) => {
+    if (!rightStackRef) return false
+
+    const bounds = rightStackRef.getBoundingClientRect()
+    const absolutePoint = {
+      x: (point.x * window.innerWidth) / 100,
+      y: (point.y * window.innerHeight) / 100,
+    }
+
+    const isInXBounds =
+      absolutePoint.x >= bounds.left && absolutePoint.x <= bounds.right
+    const centerY = bounds.top + bounds.height / 2
+    const isInYBounds =
+      lineType === 'top'
+        ? absolutePoint.y >= bounds.top && absolutePoint.y <= centerY
+        : absolutePoint.y > centerY && absolutePoint.y <= bounds.bottom
+
+    return isInXBounds && isInYBounds
   }
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -133,7 +151,7 @@ const ComparatorLines = ({
           x2={`${currentLine.end.x}%`}
           y2={`${currentLine.end.y}%`}
           stroke={
-            isValidEndpoint(currentLine.end, currentLine.type)
+            isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
               ? currentLine.type === 'top'
                 ? '#2563eb'
                 : '#1d4ed8'
@@ -142,7 +160,7 @@ const ComparatorLines = ({
           strokeWidth="4"
           strokeDasharray="5,5"
           markerEnd={
-            isValidEndpoint(currentLine.end, currentLine.type)
+            isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
               ? 'url(#dot)'
               : 'url(#dot-invalid)'
           }

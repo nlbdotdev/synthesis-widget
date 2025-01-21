@@ -42,6 +42,56 @@ const Comparator = ({ value1, value2, show }: ComparatorProps) => {
   )
 }
 
+interface StackBounds {
+  left: number
+  right: number
+  top: number
+  bottom: number
+  centerY: number
+}
+
+const getStackBounds = (element: HTMLDivElement | null): StackBounds | null => {
+  if (!element) return null
+  const rect = element.getBoundingClientRect()
+  return {
+    left: rect.left,
+    right: rect.right,
+    top: rect.top,
+    bottom: rect.bottom,
+    centerY: rect.top + rect.height / 2,
+  }
+}
+
+const isValidStartPoint = (
+  point: Point,
+  stackBounds: StackBounds | null,
+  type: 'top' | 'bottom'
+): boolean => {
+  if (!stackBounds) return false
+  const isInXBounds =
+    point.x >= stackBounds.left && point.x <= stackBounds.right
+  const isInYBounds =
+    type === 'top'
+      ? point.y >= stackBounds.top && point.y <= stackBounds.centerY
+      : point.y > stackBounds.centerY && point.y <= stackBounds.bottom
+  return isInXBounds && isInYBounds
+}
+
+const isValidEndPoint = (
+  point: Point,
+  stackBounds: StackBounds | null,
+  type: 'top' | 'bottom'
+): boolean => {
+  if (!stackBounds) return false
+  const isInXBounds =
+    point.x >= stackBounds.left && point.x <= stackBounds.right
+  const isInYBounds =
+    type === 'top'
+      ? point.y >= stackBounds.top && point.y <= stackBounds.centerY
+      : point.y > stackBounds.centerY && point.y <= stackBounds.bottom
+  return isInXBounds && isInYBounds
+}
+
 const Widget = () => {
   const leftStackRef = useRef<HTMLDivElement>(null)
   const rightStackRef = useRef<HTMLDivElement>(null)
@@ -66,21 +116,38 @@ const Widget = () => {
   const handleLineDrawStart = (point: Point) => {
     if (state.interactionMode !== 'drawCompare') return
 
-    // Check if point is in left third of the screen
-    if (point.x <= 33) {
-      const isTopHalf = point.y < 50
-      const lineType = isTopHalf ? 'top' : 'bottom'
+    const leftBounds = getStackBounds(leftStackRef.current)
+    if (!leftBounds) return
 
-      // Check if we already have a line of this type
+    // Convert point to absolute coordinates
+    const absolutePoint = {
+      x: (point.x * window.innerWidth) / 100,
+      y: (point.y * window.innerHeight) / 100,
+    }
+
+    // Check if point is in left stack
+    const isTopHalf = absolutePoint.y < leftBounds.centerY
+    const lineType = isTopHalf ? 'top' : 'bottom'
+
+    if (isValidStartPoint(absolutePoint, leftBounds, lineType)) {
       const hasLineOfType = state.drawnLines.some(
         (line) => line.type === lineType
       )
-
       if (!hasLineOfType) {
         setState({
           ...state,
           isDrawing: true,
-          currentLine: { start: point, end: point, type: lineType },
+          currentLine: {
+            start: {
+              x: (absolutePoint.x / window.innerWidth) * 100,
+              y: (absolutePoint.y / window.innerHeight) * 100,
+            },
+            end: {
+              x: (absolutePoint.x / window.innerWidth) * 100,
+              y: (absolutePoint.y / window.innerHeight) * 100,
+            },
+            type: lineType,
+          },
         })
       }
     }
@@ -89,29 +156,32 @@ const Widget = () => {
   const handleLineDrawEnd = (point: Point) => {
     if (!state.isDrawing || !state.currentLine) return
 
-    // Check if endpoint is in right third of screen
-    if (point.x >= 66) {
-      const isInCorrectHalf =
-        state.currentLine.type === 'top' ? point.y < 50 : point.y >= 50
+    const rightBounds = getStackBounds(rightStackRef.current)
+    if (!rightBounds) return
 
-      if (isInCorrectHalf) {
-        setState({
-          ...state,
-          isDrawing: false,
-          drawnLines: [
-            ...state.drawnLines.filter(
-              (line) => line.type !== state.currentLine!.type
-            ),
-            { ...state.currentLine, end: point },
-          ],
-        })
-      } else {
-        setState({
-          ...state,
-          isDrawing: false,
-          currentLine: null,
-        })
-      }
+    // Convert point to absolute coordinates
+    const absolutePoint = {
+      x: (point.x * window.innerWidth) / 100,
+      y: (point.y * window.innerHeight) / 100,
+    }
+
+    if (isValidEndPoint(absolutePoint, rightBounds, state.currentLine.type)) {
+      setState({
+        ...state,
+        isDrawing: false,
+        drawnLines: [
+          ...state.drawnLines.filter(
+            (line) => line.type !== state.currentLine!.type
+          ),
+          {
+            ...state.currentLine,
+            end: {
+              x: (absolutePoint.x / window.innerWidth) * 100,
+              y: (absolutePoint.y / window.innerHeight) * 100,
+            },
+          },
+        ],
+      })
     } else {
       setState({
         ...state,
@@ -155,7 +225,6 @@ const Widget = () => {
             interactionMode={state.interactionMode}
           />
         </div>
-
         <ComparatorLines
           drawnLines={state.drawnLines}
           comparatorLines={state.comparatorLines}
@@ -166,6 +235,7 @@ const Widget = () => {
           onLineDrawStart={handleLineDrawStart}
           onLineDrawEnd={handleLineDrawEnd}
           onLineDrawMove={handleLineDrawMove}
+          rightStackRef={null}
         />
       </div>
       <ControlPanel
