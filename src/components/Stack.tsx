@@ -12,6 +12,7 @@ interface BlocksContainerProps {
   count: number
   setCount: (count: number) => void
   interactionMode: InteractionMode
+  className?: string
 }
 
 interface StackProps {
@@ -48,6 +49,7 @@ const BlocksContainer = ({
   count,
   setCount,
   interactionMode,
+  className = '',
 }: BlocksContainerProps) => {
   const handleClick = () => {
     if (interactionMode === 'addRemove') {
@@ -66,7 +68,7 @@ const BlocksContainer = ({
     <div
       className={`flex-grow flex items-center justify-center w-full ${
         interactionMode === 'addRemove' ? 'cursor-pointer' : ''
-      }`}
+      } ${className}`}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
@@ -86,10 +88,10 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
       <button
         onClick={() => setCount(Math.max(0, count - 1))}
         disabled={count === 0}
-        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+        className={`w-8 h-8 flex items-center justify-center text-[#0a192f] rounded focus:outline-none select-none ${
           count === 0
-            ? 'bg-red-300 cursor-not-allowed'
-            : 'bg-red-500 hover:bg-red-600'
+            ? 'bg-[#64ffda50] cursor-not-allowed'
+            : 'bg-[#64ffda] hover:bg-[#64ffda90]'
         }`}
       >
         -
@@ -104,15 +106,15 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
             setCount(Math.min(10, Math.max(0, value)))
           }
         }}
-        className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none"
+        className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#64ffda] text-4xl font-bold bg-transparent border-[#64ffda]"
       />
       <button
         onClick={() => setCount(Math.min(10, count + 1))}
         disabled={count === 10}
-        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+        className={`w-8 h-8 flex items-center justify-center text-[#0a192f] rounded focus:outline-none select-none ${
           count === 10
-            ? 'bg-green-300 cursor-not-allowed'
-            : 'bg-green-500 hover:bg-green-600'
+            ? 'bg-[#64ffda50] cursor-not-allowed'
+            : 'bg-[#64ffda] hover:bg-[#64ffda90]'
         }`}
       >
         +
@@ -131,18 +133,27 @@ const Stack = ({
   return (
     <div
       data-stack={isInput ? '1' : '2'}
-      className="flex flex-col justify-between h-[85vh] bg-gray-100 min-w-[300px] rounded-xl"
+      className="flex flex-col justify-between h-[85vh] min-w-[300px] rounded-xl relative"
     >
+      {/* Vertical line gradient - centered red fading to green */}
+      <div className="absolute left-1/2 top-[-1000px] bottom-[-1000px] -translate-x-1/2 w-[400px] -z-10">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-green-500 from-0% via-red-500 via-50% to-green-500 to-100%"
+          style={{ opacity: '0.3' }}
+        />
+      </div>
       <BlocksContainer
         count={count}
         setCount={setCount}
         interactionMode={interactionMode}
       />
-      <div className="flex items-center justify-center h-[10vh] bg-green-100 w-full rounded-b-xl">
+      <div className="flex items-center justify-center h-[10vh] w-full rounded-b-xl relative">
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
-          <div className="mb-4 select-none">{count}</div>
+          <div className="mb-4 select-none text-[#64ffda] text-4xl font-bold">
+            {count}
+          </div>
         )}
       </div>
     </div>
