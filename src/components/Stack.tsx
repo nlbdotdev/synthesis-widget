@@ -12,7 +12,6 @@ interface BlocksContainerProps {
   count: number
   setCount: (count: number) => void
   interactionMode: InteractionMode
-  className?: string
 }
 
 interface StackProps {
@@ -49,7 +48,6 @@ const BlocksContainer = ({
   count,
   setCount,
   interactionMode,
-  className = '',
 }: BlocksContainerProps) => {
   const handleClick = () => {
     if (interactionMode === 'addRemove') {
@@ -68,7 +66,7 @@ const BlocksContainer = ({
     <div
       className={`flex-grow flex items-center justify-center w-full ${
         interactionMode === 'addRemove' ? 'cursor-pointer' : ''
-      } ${className}`}
+      }`}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
