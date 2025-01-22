@@ -203,7 +203,7 @@ const Widget = () => {
         showComparator: true,
         hasCompletedAnimation: true,
         // Convert the animated lines to their final positions
-        drawnLines: getOperatorLinePositions(operator, 50, 35),
+        drawnLines: getOperatorLinePositions(operator, 50, 50),
       }))
     }, 1000)
   }

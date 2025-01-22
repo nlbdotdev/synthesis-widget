@@ -106,14 +106,21 @@ const ControlPanel = ({
               <label className="text-base text-gray-700">Mode</label>
               <select
                 value={state.interactionMode}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newMode = e.target
+                    .value as WidgetState['interactionMode']
                   setState({
                     ...state,
-                    interactionMode: e.target
-                      .value as WidgetState['interactionMode'],
-                    isInput: e.target.value === 'addRemove',
+                    interactionMode: newMode,
+                    isInput: newMode === 'addRemove',
+                    // Clear lines when switching away from drawCompare
+                    ...(newMode !== 'drawCompare' && {
+                      drawnLines: [],
+                      hasCompletedAnimation: false,
+                      showComparator: false,
+                    }),
                   })
-                }
+                }}
                 className="w-full px-2 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-base"
               >
                 <option value="none">No Interaction</option>

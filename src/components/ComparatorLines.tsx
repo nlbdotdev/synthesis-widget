@@ -36,7 +36,7 @@ export const getOperatorLinePositions = (
   centerX: number,
   centerY: number
 ) => {
-  const SIZE = 15
+  const SIZE = 9
 
   switch (operator) {
     case '>':
@@ -165,7 +165,7 @@ const ComparatorLines = ({
 
   // Calculate center position for operator animation
   const centerX = 50 // Center of SVG viewport
-  const centerY = 35 // Moved up to align with stacks (was 50)
+  const centerY = 50 // Exact middle of viewport (was 35)
 
   const targetOperatorLines = isAnimating
     ? getOperatorLinePositions(animationOperator, centerX, centerY)
@@ -316,13 +316,7 @@ const ComparatorLines = ({
               }}
               stroke="#22c55e"
               strokeWidth="16"
-              strokeLinecap={
-                animationOperator === '>'
-                  ? 'round'
-                  : animationOperator === '<'
-                    ? 'round'
-                    : 'butt'
-              }
+              strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
               style={{
@@ -338,9 +332,9 @@ const ComparatorLines = ({
       {hasCompletedAnimation && (
         <motion.circle
           cx="50%"
-          cy="35%"
+          cy="50%"
           initial={{ r: 0, opacity: 0.8 }}
-          animate={{ r: 100, opacity: 0 }}
+          animate={{ r: 200, opacity: 0 }}
           transition={{
             duration: 0.8,
             ease: 'easeOut',
