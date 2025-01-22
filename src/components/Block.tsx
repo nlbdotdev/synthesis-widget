@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import React from 'react'
-import { Cube } from './Cube'
+import { Cube, CubeVariant } from './Cube'
 import { InteractionMode } from '../types/widget'
 
 // Constants for animation and interaction
@@ -46,6 +46,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
   const [isOutside, setIsOutside] = React.useState(false)
   const [startPoint, setStartPoint] = React.useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = React.useState(false)
+  const [isHovered, setIsHovered] = React.useState(false)
   const blockVariants = React.useMemo(() => createBlockVariants(index), [index])
 
   const handleDragStart = (_event: any, info: any) => {
@@ -76,6 +77,12 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
     setIsDragging(false)
   }
 
+  const getCubeVariant = (): CubeVariant => {
+    if (isOutside) return 'danger'
+    if (isHovered && interactionMode === 'addRemove') return 'hover'
+    return 'default'
+  }
+
   const interactionProps =
     interactionMode === 'addRemove'
       ? {
@@ -87,6 +94,8 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
           onDragEnd: handleDragEnd,
           whileDrag: { scale: SCALE_DRAG },
           whileHover: { scale: SCALE_HOVER },
+          onHoverStart: () => setIsHovered(true),
+          onHoverEnd: () => setIsHovered(false),
           dragMomentum: false,
           style: {
             cursor: 'grab',
@@ -97,9 +106,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
             }
           },
         }
-      : {
-          whileHover: { scale: SCALE_HOVER },
-        }
+      : {}
 
   return (
     <motion.div
@@ -136,7 +143,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
         }}
         {...interactionProps}
       >
-        <Cube isOutside={isOutside} />
+        <Cube variant={getCubeVariant()} />
       </motion.div>
     </motion.div>
   )
