@@ -11,6 +11,29 @@ const SCALE_NORMAL = 1
 const SCALE_HOVER = 1.2
 const SCALE_DRAG = 1.3
 const Z_INDEX_DRAGGING = 1000 // High z-index for dragged blocks
+const BOB_RANGE = 3 // Smaller range for subtler movement
+const WAVE_DURATION = 2 // Base duration for the wave
+
+// Animation variants factory for wave effect
+const createBlockVariants = (index: number) => {
+  // Create a phase offset based on index for wave effect
+  const phaseOffset = index * 0.2 // Each block is offset by 0.2 seconds
+
+  return {
+    animate: {
+      y: [-BOB_RANGE, BOB_RANGE],
+      transition: {
+        y: {
+          repeat: Infinity,
+          repeatType: 'reverse',
+          duration: WAVE_DURATION,
+          ease: 'easeInOut',
+          delay: phaseOffset % (WAVE_DURATION / 2), // Cycle the delay to create waves
+        },
+      },
+    },
+  }
+}
 
 interface BlockProps {
   index: number
@@ -23,6 +46,7 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
   const [isOutside, setIsOutside] = React.useState(false)
   const [startPoint, setStartPoint] = React.useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = React.useState(false)
+  const blockVariants = React.useMemo(() => createBlockVariants(index), [index])
 
   const handleDragStart = (_event: any, info: any) => {
     setStartPoint({ x: info.point.x, y: info.point.y })
@@ -73,7 +97,9 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
             }
           },
         }
-      : {}
+      : {
+          whileHover: { scale: SCALE_HOVER },
+        }
 
   return (
     <motion.div
@@ -86,21 +112,27 @@ const Block = ({ index, count, setCount, interactionMode }: BlockProps) => {
       transition={{
         layout: {
           type: 'spring',
-          damping: 15, // Lower damping for more bounce
-          stiffness: 300, // Higher stiffness for faster movement
-          mass: 0.8, // Slightly lower mass for quicker response
+          damping: 15,
+          stiffness: 300,
+          mass: 0.8,
         },
       }}
     >
       <motion.div
         data-block
         initial={{ scale: SCALE_INITIAL }}
-        animate={{ scale: SCALE_NORMAL }}
+        animate={{
+          scale: SCALE_NORMAL,
+          ...blockVariants.animate,
+        }}
         transition={{
-          type: 'spring',
-          damping: 12,
-          stiffness: 400,
-          mass: 0.8,
+          scale: {
+            type: 'spring',
+            damping: 12,
+            stiffness: 400,
+            mass: 0.8,
+          },
+          y: blockVariants.animate.transition.y,
         }}
         {...interactionProps}
       >
