@@ -3,39 +3,7 @@ import Stack from './Stack'
 import ControlPanel from './ControlPanel'
 import ComparatorLines, { getOperatorLinePositions } from './ComparatorLines'
 import { Point } from 'motion/react'
-
-export type InteractionMode = 'none' | 'addRemove' | 'drawCompare'
-
-interface Line {
-  start: Point
-  end: Point
-  type: 'top' | 'bottom'
-}
-
-export interface WidgetState {
-  blockCount1: number
-  blockCount2: number
-  interactionMode: InteractionMode
-  isInput: boolean
-  showComparatorLines: boolean
-  drawnLines: Line[]
-  comparatorLines: Line[]
-  isDrawing: boolean
-  currentLine: Line | null
-  autoSnapLines: boolean
-  isAnimating: boolean
-  animationOperator: string
-  animationLines: { originalStart: Point; originalEnd: Point }[]
-  hasCompletedAnimation: boolean
-}
-
-interface StackBounds {
-  left: number
-  right: number
-  top: number
-  bottom: number
-  centerY: number
-}
+import { Line, WidgetState, StackBounds } from '../types/widget'
 
 const getStackBounds = (element: HTMLDivElement | null): StackBounds | null => {
   if (!element) return null
@@ -182,13 +150,13 @@ const Widget = () => {
           : '='
 
     // Start animation sequence
-    setState((prev) => ({
+    setState((prev: WidgetState) => ({
       ...prev,
       isAnimating: true,
       showComparator: false,
       animationOperator: operator,
       // Keep track of original line positions for animation
-      animationLines: state.drawnLines.map((line) => ({
+      animationLines: state.drawnLines.map((line: Line) => ({
         ...line,
         originalStart: { ...line.start },
         originalEnd: { ...line.end },
@@ -197,7 +165,7 @@ const Widget = () => {
 
     // After animation completes, show the comparator but keep the animated lines
     setTimeout(() => {
-      setState((prev) => ({
+      setState((prev: WidgetState) => ({
         ...prev,
         isAnimating: false,
         showComparator: true,
@@ -209,7 +177,7 @@ const Widget = () => {
   }
 
   const resetComparison = () => {
-    setState((prev) => ({
+    setState((prev: WidgetState) => ({
       ...prev,
       drawnLines: [],
       animationLines: [],
@@ -242,7 +210,7 @@ const Widget = () => {
 
     if (isValidStartPoint(absolutePoint, leftBounds, lineType)) {
       const hasLineOfType = state.drawnLines.some(
-        (line) => line.type === lineType
+        (line: Line) => line.type === lineType
       )
       if (!hasLineOfType) {
         const startPoint = {
@@ -348,21 +316,21 @@ const Widget = () => {
           : endPoint
       }
 
-      setState({
-        ...state,
+      setState((prev: WidgetState) => ({
+        ...prev,
         isDrawing: false,
         drawnLines: [
           ...state.drawnLines.filter(
-            (line) => line.type !== state.currentLine!.type
+            (line: Line) => line.type !== state.currentLine!.type
           ),
           {
-            ...state.currentLine,
             start: startPoint,
             end: endPoint,
-          },
+            type: state.currentLine!.type,
+          } as Line,
         ],
         currentLine: null,
-      })
+      }))
     } else {
       setState({
         ...state,

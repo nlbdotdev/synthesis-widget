@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState, useEffect } from 'react'
-import { WidgetState } from './Widget'
+import { WidgetState } from '../types/widget'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface ControlPanelProps {
@@ -88,7 +88,10 @@ const ControlPanel = ({
                 onClick={() => {
                   if (state.hasCompletedAnimation) {
                     resetComparison()
-                    setState((prev) => ({ ...prev, isInput: true }))
+                    setState((prev: WidgetState) => ({
+                      ...prev,
+                      isInput: true,
+                    }))
                   } else {
                     playComparatorAnimation()
                   }
@@ -164,7 +167,7 @@ const ControlPanel = ({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        setState((prev) => ({
+                        setState((prev: WidgetState) => ({
                           ...prev,
                           blockCount1: Math.max(0, prev.blockCount1 - 1),
                         }))
@@ -197,7 +200,7 @@ const ControlPanel = ({
                     />
                     <button
                       onClick={() =>
-                        setState((prev) => ({
+                        setState((prev: WidgetState) => ({
                           ...prev,
                           blockCount1: Math.min(10, prev.blockCount1 + 1),
                         }))
@@ -218,7 +221,7 @@ const ControlPanel = ({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        setState((prev) => ({
+                        setState((prev: WidgetState) => ({
                           ...prev,
                           blockCount2: Math.max(0, prev.blockCount2 - 1),
                         }))
@@ -251,7 +254,7 @@ const ControlPanel = ({
                     />
                     <button
                       onClick={() =>
-                        setState((prev) => ({
+                        setState((prev: WidgetState) => ({
                           ...prev,
                           blockCount2: Math.min(10, prev.blockCount2 + 1),
                         }))
