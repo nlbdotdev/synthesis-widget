@@ -27,6 +27,7 @@ interface ComparatorLinesProps {
   isAnimating?: boolean
   animationOperator?: string
   animationLines?: Line[]
+  hasCompletedAnimation?: boolean
 }
 
 // Helper function to calculate operator line positions
@@ -35,7 +36,7 @@ export const getOperatorLinePositions = (
   centerX: number,
   centerY: number
 ) => {
-  const SIZE = 10 // Reduced size (was 20)
+  const SIZE = 15
 
   switch (operator) {
     case '>':
@@ -99,6 +100,7 @@ const ComparatorLines = ({
   isAnimating = false,
   animationOperator = '',
   animationLines = [],
+  hasCompletedAnimation = false,
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const hasMoved = useRef(false)
@@ -270,7 +272,13 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
+            stroke={
+              hasCompletedAnimation
+                ? '#22c55e'
+                : line.type === 'top'
+                  ? '#2563eb'
+                  : '#1d4ed8'
+            }
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
@@ -280,7 +288,6 @@ const ComparatorLines = ({
       {/* Animated operator lines */}
       {isAnimating &&
         targetOperatorLines.map((targetLine) => {
-          // Find the original line that matches the type (top/bottom)
           const originalLine = animationLines.find(
             (line) => line.type === targetLine.type
           )
@@ -307,13 +314,40 @@ const ComparatorLines = ({
                 duration: 1,
                 ease: 'easeInOut',
               }}
-              stroke={targetLine.type === 'top' ? '#2563eb' : '#1d4ed8'}
+              stroke="#22c55e"
               strokeWidth="16"
-              strokeLinecap="round"
+              strokeLinecap={
+                animationOperator === '>'
+                  ? 'round'
+                  : animationOperator === '<'
+                    ? 'round'
+                    : 'butt'
+              }
+              strokeLinejoin="round"
               fill="none"
+              style={{
+                transformOrigin:
+                  animationOperator === '>' ? '100% 50%' : '0% 50%',
+                transformBox: 'fill-box',
+              }}
             />
           )
         })}
+
+      {/* Add boom animation for completed animation */}
+      {hasCompletedAnimation && (
+        <motion.circle
+          cx="50%"
+          cy="35%"
+          initial={{ r: 0, opacity: 0.8 }}
+          animate={{ r: 100, opacity: 0 }}
+          transition={{
+            duration: 0.8,
+            ease: 'easeOut',
+          }}
+          fill="#22c55e"
+        />
+      )}
 
       {/* Draw the current line being drawn */}
       {currentLine && (

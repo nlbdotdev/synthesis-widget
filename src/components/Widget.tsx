@@ -423,6 +423,7 @@ const Widget = () => {
           isAnimating={state.isAnimating}
           animationOperator={state.animationOperator}
           animationLines={state.drawnLines}
+          hasCompletedAnimation={state.hasCompletedAnimation}
         />
       </div>
       <ControlPanel
