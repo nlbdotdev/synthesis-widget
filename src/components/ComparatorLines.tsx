@@ -242,7 +242,7 @@ const ComparatorLines = ({
           markerWidth="4"
           markerHeight="4"
         >
-          <circle cx="5" cy="5" r="3" fill="currentColor" />
+          <circle cx="5" cy="5" r="3" fill="#ffffff" />
         </marker>
         <marker
           id="dot-invalid"
@@ -272,13 +272,7 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke={
-              hasCompletedAnimation
-                ? '#22c55e'
-                : line.type === 'top'
-                  ? '#2563eb'
-                  : '#1d4ed8'
-            }
+            stroke={hasCompletedAnimation ? '#4ade80' : '#bfdbfe'}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
@@ -314,7 +308,7 @@ const ComparatorLines = ({
                 duration: 1,
                 ease: 'easeInOut',
               }}
-              stroke="#22c55e"
+              stroke="#4ade80"
               strokeWidth="16"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -339,7 +333,7 @@ const ComparatorLines = ({
             duration: 0.8,
             ease: 'easeOut',
           }}
-          fill="#22c55e"
+          fill="#4ade80"
         />
       )}
 
@@ -352,9 +346,7 @@ const ComparatorLines = ({
           y2={`${currentLine.end.y}%`}
           stroke={
             isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
-              ? currentLine.type === 'top'
-                ? '#2563eb'
-                : '#1d4ed8'
+              ? '#bfdbfe'
               : '#ef4444'
           }
           strokeWidth="16"
@@ -380,7 +372,7 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke="#4B5563"
+            stroke="#94a3b8"
             strokeWidth="16"
             strokeDasharray="5,5"
             strokeOpacity="0.5"
