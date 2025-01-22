@@ -250,17 +250,27 @@ const ComparatorLines = ({
         drawnLines.map((line, index) => (
           <motion.line
             key={`drawn-${index}`}
-            initial={
-              line.type === 'top' || line.type === 'bottom'
-                ? { pathLength: 1 }
-                : { pathLength: 0 }
-            }
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.3 }}
-            x1={`${line.start.x}%`}
-            y1={`${line.start.y}%`}
-            x2={`${line.end.x}%`}
-            y2={`${line.end.y}%`}
+            initial={{
+              pathLength: 1,
+              x1: `${line.start.x}%`,
+              y1: `${line.start.y}%`,
+              x2: `${line.start.x}%`, // Start from the same x,y as start
+              y2: `${line.start.y}%`,
+            }}
+            animate={{
+              pathLength: 1,
+              x1: `${line.start.x}%`,
+              y1: `${line.start.y}%`,
+              x2: `${line.end.x}%`,
+              y2: `${line.end.y}%`,
+            }}
+            transition={{
+              pathLength: { duration: 0.2 },
+              x1: { type: 'spring', stiffness: 150, damping: 15 },
+              y1: { type: 'spring', stiffness: 150, damping: 15 },
+              x2: { type: 'spring', stiffness: 150, damping: 15 },
+              y2: { type: 'spring', stiffness: 150, damping: 15 },
+            }}
             stroke={hasCompletedAnimation ? '#4ade80' : '#bfdbfe'}
             strokeWidth="16"
             strokeLinecap="round"
@@ -354,13 +364,27 @@ const ComparatorLines = ({
         comparatorLines.map((line, index) => (
           <motion.line
             key={`comparator-${index}`}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.5 }}
-            x1={`${line.start.x}%`}
-            y1={`${line.start.y}%`}
-            x2={`${line.end.x}%`}
-            y2={`${line.end.y}%`}
+            initial={{
+              pathLength: 0,
+              x1: `${line.start.x}%`,
+              y1: `${line.start.y}%`,
+              x2: `${line.start.x}%`, // Start from the same x,y as start
+              y2: `${line.start.y}%`,
+            }}
+            animate={{
+              pathLength: 1,
+              x1: `${line.start.x}%`,
+              y1: `${line.start.y}%`,
+              x2: `${line.end.x}%`,
+              y2: `${line.end.y}%`,
+            }}
+            transition={{
+              pathLength: { duration: 0.3 },
+              x1: { type: 'spring', stiffness: 150, damping: 15 },
+              y1: { type: 'spring', stiffness: 150, damping: 15 },
+              x2: { type: 'spring', stiffness: 150, damping: 15 },
+              y2: { type: 'spring', stiffness: 150, damping: 15 },
+            }}
             stroke="#94a3b8"
             strokeWidth="16"
             strokeDasharray="5,5"
