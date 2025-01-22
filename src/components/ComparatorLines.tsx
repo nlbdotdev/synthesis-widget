@@ -27,6 +27,7 @@ interface ComparatorLinesProps {
   isAnimating?: boolean
   animationOperator?: string
   animationLines?: Line[]
+  hasCompletedAnimation?: boolean
 }
 
 // Helper function to calculate operator line positions
@@ -35,7 +36,7 @@ export const getOperatorLinePositions = (
   centerX: number,
   centerY: number
 ) => {
-  const SIZE = 10 // Reduced size (was 20)
+  const SIZE = 9
 
   switch (operator) {
     case '>':
@@ -99,6 +100,7 @@ const ComparatorLines = ({
   isAnimating = false,
   animationOperator = '',
   animationLines = [],
+  hasCompletedAnimation = false,
 }: ComparatorLinesProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const hasMoved = useRef(false)
@@ -163,7 +165,7 @@ const ComparatorLines = ({
 
   // Calculate center position for operator animation
   const centerX = 50 // Center of SVG viewport
-  const centerY = 35 // Moved up to align with stacks (was 50)
+  const centerY = 50 // Exact middle of viewport (was 35)
 
   const targetOperatorLines = isAnimating
     ? getOperatorLinePositions(animationOperator, centerX, centerY)
@@ -240,7 +242,7 @@ const ComparatorLines = ({
           markerWidth="4"
           markerHeight="4"
         >
-          <circle cx="5" cy="5" r="3" fill="currentColor" />
+          <circle cx="5" cy="5" r="3" fill="#ffffff" />
         </marker>
         <marker
           id="dot-invalid"
@@ -270,7 +272,7 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke={line.type === 'top' ? '#2563eb' : '#1d4ed8'}
+            stroke={hasCompletedAnimation ? '#4ade80' : '#bfdbfe'}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
@@ -280,7 +282,6 @@ const ComparatorLines = ({
       {/* Animated operator lines */}
       {isAnimating &&
         targetOperatorLines.map((targetLine) => {
-          // Find the original line that matches the type (top/bottom)
           const originalLine = animationLines.find(
             (line) => line.type === targetLine.type
           )
@@ -307,13 +308,34 @@ const ComparatorLines = ({
                 duration: 1,
                 ease: 'easeInOut',
               }}
-              stroke={targetLine.type === 'top' ? '#2563eb' : '#1d4ed8'}
+              stroke="#4ade80"
               strokeWidth="16"
               strokeLinecap="round"
+              strokeLinejoin="round"
               fill="none"
+              style={{
+                transformOrigin:
+                  animationOperator === '>' ? '100% 50%' : '0% 50%',
+                transformBox: 'fill-box',
+              }}
             />
           )
         })}
+
+      {/* Add boom animation for completed animation */}
+      {hasCompletedAnimation && (
+        <motion.circle
+          cx="50%"
+          cy="50%"
+          initial={{ r: 0, opacity: 0.8 }}
+          animate={{ r: 200, opacity: 0 }}
+          transition={{
+            duration: 0.8,
+            ease: 'easeOut',
+          }}
+          fill="#4ade80"
+        />
+      )}
 
       {/* Draw the current line being drawn */}
       {currentLine && (
@@ -324,9 +346,7 @@ const ComparatorLines = ({
           y2={`${currentLine.end.y}%`}
           stroke={
             isValidEndpoint(currentLine.end, rightStackRef, currentLine.type)
-              ? currentLine.type === 'top'
-                ? '#2563eb'
-                : '#1d4ed8'
+              ? '#bfdbfe'
               : '#ef4444'
           }
           strokeWidth="16"
@@ -352,7 +372,7 @@ const ComparatorLines = ({
             y1={`${line.start.y}%`}
             x2={`${line.end.x}%`}
             y2={`${line.end.y}%`}
-            stroke="#4B5563"
+            stroke="#94a3b8"
             strokeWidth="16"
             strokeDasharray="5,5"
             strokeOpacity="0.5"

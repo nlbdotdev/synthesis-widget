@@ -86,10 +86,10 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
       <button
         onClick={() => setCount(Math.max(0, count - 1))}
         disabled={count === 0}
-        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+        className={`w-8 h-8 flex items-center justify-center text-[#0a192f] rounded focus:outline-none select-none ${
           count === 0
-            ? 'bg-red-300 cursor-not-allowed'
-            : 'bg-red-500 hover:bg-red-600'
+            ? 'bg-[#64ffda50] cursor-not-allowed'
+            : 'bg-[#64ffda] hover:bg-[#64ffda90]'
         }`}
       >
         -
@@ -104,15 +104,15 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
             setCount(Math.min(10, Math.max(0, value)))
           }
         }}
-        className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none"
+        className="w-24 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#64ffda] text-6xl font-bold bg-transparent border-[#64ffda] tracking-wider"
       />
       <button
         onClick={() => setCount(Math.min(10, count + 1))}
         disabled={count === 10}
-        className={`w-8 h-8 flex items-center justify-center text-white rounded focus:outline-none select-none ${
+        className={`w-8 h-8 flex items-center justify-center text-[#0a192f] rounded focus:outline-none select-none ${
           count === 10
-            ? 'bg-green-300 cursor-not-allowed'
-            : 'bg-green-500 hover:bg-green-600'
+            ? 'bg-[#64ffda50] cursor-not-allowed'
+            : 'bg-[#64ffda] hover:bg-[#64ffda90]'
         }`}
       >
         +
@@ -131,18 +131,25 @@ const Stack = ({
   return (
     <div
       data-stack={isInput ? '1' : '2'}
-      className="flex flex-col justify-between h-[85vh] bg-gray-100 min-w-[200px] rounded-xl"
+      className="flex flex-col justify-between h-[85vh] min-w-[300px] rounded-xl relative"
     >
+      {/* New vertical line gradient */}
+      <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-full -z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-500 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-l from-green-500 via-green-500 to-transparent" />
+      </div>
       <BlocksContainer
         count={count}
         setCount={setCount}
         interactionMode={interactionMode}
       />
-      <div className="flex items-center justify-center h-[10vh] bg-green-100 w-full rounded-b-xl">
+      <div className="flex items-center justify-center h-[10vh] w-full rounded-b-xl">
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
-          <div className="mb-4 select-none">{count}</div>
+          <div className="mb-4 select-none text-[#64ffda] text-6xl font-bold tracking-wider">
+            {count}
+          </div>
         )}
       </div>
     </div>

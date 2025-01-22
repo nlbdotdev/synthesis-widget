@@ -203,7 +203,7 @@ const Widget = () => {
         showComparator: true,
         hasCompletedAnimation: true,
         // Convert the animated lines to their final positions
-        drawnLines: getOperatorLinePositions(operator, 50, 35),
+        drawnLines: getOperatorLinePositions(operator, 50, 50),
       }))
     }, 1000)
   }
@@ -391,23 +391,29 @@ const Widget = () => {
 
   return (
     <div className="flex flex-col items-center h-screen">
-      <div className="flex flex-row items-center justify-center gap-32 w-full h-full px-16">
-        <div ref={leftStackRef}>
-          <Stack
-            count={state.blockCount1}
-            setCount={(count) => setState({ ...state, blockCount1: count })}
-            isInput={state.isInput}
-            interactionMode={state.interactionMode}
-          />
+      <div className="flex flex-row items-center justify-center gap-64 w-full h-full px-16">
+        <div className="relative ">
+          <div className="absolute left-1/2 -translate-x-1/2 w-[30px] bg-[#c3d9d4] blur-[50px] h-full" />
+          <div ref={leftStackRef} className="h-full">
+            <Stack
+              count={state.blockCount1}
+              setCount={(count) => setState({ ...state, blockCount1: count })}
+              isInput={state.isInput}
+              interactionMode={state.interactionMode}
+            />
+          </div>
         </div>
 
-        <div ref={rightStackRef}>
-          <Stack
-            count={state.blockCount2}
-            setCount={(count) => setState({ ...state, blockCount2: count })}
-            isInput={state.isInput}
-            interactionMode={state.interactionMode}
-          />
+        <div className="relative">
+          <div className="absolute left-1/2 -translate-x-1/2 w-[30px]  bg-[#c3d9d4] blur-[50px] h-full" />
+          <div ref={rightStackRef} className="h-full">
+            <Stack
+              count={state.blockCount2}
+              setCount={(count) => setState({ ...state, blockCount2: count })}
+              isInput={state.isInput}
+              interactionMode={state.interactionMode}
+            />
+          </div>
         </div>
         <ComparatorLines
           drawnLines={state.drawnLines}
@@ -423,6 +429,7 @@ const Widget = () => {
           isAnimating={state.isAnimating}
           animationOperator={state.animationOperator}
           animationLines={state.drawnLines}
+          hasCompletedAnimation={state.hasCompletedAnimation}
         />
       </div>
       <ControlPanel
