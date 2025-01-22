@@ -104,7 +104,7 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
             setCount(Math.min(10, Math.max(0, value)))
           }
         }}
-        className="w-16 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#64ffda] text-4xl font-bold bg-transparent border-[#64ffda]"
+        className="w-24 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#64ffda] text-6xl font-bold bg-transparent border-[#64ffda] tracking-wider"
       />
       <button
         onClick={() => setCount(Math.min(10, count + 1))}
@@ -147,7 +147,7 @@ const Stack = ({
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
-          <div className="mb-4 select-none text-[#64ffda] text-4xl font-bold">
+          <div className="mb-4 select-none text-[#64ffda] text-6xl font-bold tracking-wider">
             {count}
           </div>
         )}
