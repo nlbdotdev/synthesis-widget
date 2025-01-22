@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import React from 'react'
 import { Cube } from './Cube'
-import { InteractionMode } from './Widget'
+import { InteractionMode } from '../types/widget'
 
 // Constants for animation and interaction
 const DRAG_THRESHOLD_X = 120

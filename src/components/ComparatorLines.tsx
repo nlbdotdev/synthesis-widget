@@ -1,17 +1,6 @@
 import { motion } from 'framer-motion'
 import { useRef, useEffect } from 'react'
-import { InteractionMode } from './Widget'
-
-interface Point {
-  x: number
-  y: number
-}
-
-interface Line {
-  start: Point
-  end: Point
-  type: 'top' | 'bottom'
-}
+import { InteractionMode, Line, Point } from '../types/widget'
 
 interface ComparatorLinesProps {
   drawnLines: Line[]

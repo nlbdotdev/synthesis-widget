@@ -1,4 +1,4 @@
-import { InteractionMode } from './Widget'
+import { InteractionMode } from '../types/widget'
 import Block from './Block'
 import React from 'react'
 
