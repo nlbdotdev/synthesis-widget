@@ -1,21 +1,81 @@
-# React + TypeScript + Vite
+# Block Comparison Learning Widget
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive educational widget designed to help students learn about numerical comparisons through visual block manipulation and comparison.
 
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
+## Overview
 
-## Deploy Your Own
+This widget provides an intuitive, hands-on way to understand number relationships by allowing students to:
 
-Deploy your own Vite project with Vercel.
+- Build and compare stacks of blocks
+- Draw comparison lines to show relationships
+- See animated visual feedback of their comparisons
+- Interact through touch or mouse input
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/vercel/tree/main/examples/vite-react&template=vite-react)
+## Features
 
-_Live Example: https://vite-react-example.vercel.app_
+- 🎯 Interactive block stacks with drag-and-drop
+- 🎨 Smooth, physics-based animations
+- 📱 Touch and mouse support
+- 🔄 Multiple interaction modes
+- 📊 Visual comparison system
+- 🎮 Intuitive controls
 
-### Deploying From Your Terminal
+## Tech Stack
 
-You can deploy your new Vite project with a single command from your terminal using [Vercel CLI](https://vercel.com/download):
+- ⚛️ React + TypeScript
+- ⚡ Vite
+- 🎭 Framer Motion
+- 🎨 TailwindCSS
 
-```shell
-$ vercel
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/block-comparison-widget.git
+cd block-comparison-widget
 ```
+
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn
+```
+
+### Running the Development Server
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+The application will be available at `http://localhost:5173`
+
+## Usage
+
+1. **Add/Remove Blocks**
+
+   - Click the stack to add blocks
+   - Drag blocks away to remove them
+   - Use the control panel for precise values
+
+2. **Compare Blocks**
+
+   - Switch to compare mode
+   - Draw lines between stacks
+   - See immediate visual feedback
+
+3. **View Results**
+   - Trigger the comparison animation
+   - See the relationship between stacks
+   - Reset and try different combinations
