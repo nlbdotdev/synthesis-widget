@@ -135,19 +135,17 @@ const Stack = ({
       data-stack={isInput ? '1' : '2'}
       className="flex flex-col justify-between h-[85vh] min-w-[300px] rounded-xl relative"
     >
-      {/* Vertical line gradient - centered red fading to green */}
-      <div className="absolute left-1/2 top-[-1000px] bottom-[-1000px] -translate-x-1/2 w-[400px] -z-10">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-green-500 from-0% via-red-500 via-50% to-green-500 to-100%"
-          style={{ opacity: '0.3' }}
-        />
+      {/* New vertical line gradient */}
+      <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-full -z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-500 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-l from-green-500 via-green-500 to-transparent" />
       </div>
       <BlocksContainer
         count={count}
         setCount={setCount}
         interactionMode={interactionMode}
       />
-      <div className="flex items-center justify-center h-[10vh] w-full rounded-b-xl relative">
+      <div className="flex items-center justify-center h-[10vh] w-full rounded-b-xl">
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
