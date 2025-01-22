@@ -104,7 +104,7 @@ const CountInput = ({ count, setCount }: CountInputProps) => {
             setCount(Math.min(10, Math.max(0, value)))
           }
         }}
-        className="w-24 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#64ffda] text-6xl font-bold bg-transparent border-[#64ffda] tracking-wider"
+        className="w-24 px-2 py-1 border rounded text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none select-none text-[#00d9ff] text-6xl font-bold bg-transparent border-[#64ffda] tracking-wider"
       />
       <button
         onClick={() => setCount(Math.min(10, count + 1))}
@@ -133,11 +133,6 @@ const Stack = ({
       data-stack={isInput ? '1' : '2'}
       className="flex flex-col justify-between h-[85vh] min-w-[300px] rounded-xl relative"
     >
-      {/* New vertical line gradient */}
-      <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-full -z-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-500 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-l from-green-500 via-green-500 to-transparent" />
-      </div>
       <BlocksContainer
         count={count}
         setCount={setCount}
@@ -147,7 +142,7 @@ const Stack = ({
         {isInput ? (
           <CountInput count={count} setCount={setCount} />
         ) : (
-          <div className="mb-4 select-none text-[#64ffda] text-6xl font-bold tracking-wider">
+          <div className="mb-4 select-none text-[#00d9ff] text-6xl font-bold tracking-wider">
             {count}
           </div>
         )}
