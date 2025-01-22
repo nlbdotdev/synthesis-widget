@@ -3,7 +3,7 @@ import Stack from './Stack'
 import ControlPanel from './ControlPanel'
 import ComparatorLines from './ComparatorLines'
 import { WidgetState } from '../types/widget'
-import { generateComparatorLines } from '../utils/stackUtils'
+import { generateComparatorLines } from '../utils/comparatorLines'
 import { useLineDrawing } from '../hooks/useLineDrawing'
 import { useComparatorAnimation } from '../hooks/useComparatorAnimation'
 

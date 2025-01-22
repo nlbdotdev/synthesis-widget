@@ -1,11 +1,10 @@
 import { useRef } from 'react'
 import { Point, Line, WidgetState } from '../types/widget'
+import { isValidStartPoint, isValidEndPoint } from '../utils/lineValidation'
 import {
-  isValidStartPoint,
-  isValidEndPoint,
   getStackBounds,
   getStackTopBottomPositions,
-} from '../utils/stackUtils'
+} from '../utils/stackPositions'
 
 interface UseLineDrawingProps {
   state: WidgetState
